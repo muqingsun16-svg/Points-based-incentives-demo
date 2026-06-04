@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>K-Hub 志愿者积分激励平台（演示版）</title>
+
+  <!-- React & AntD & Framer Motion（CDN） -->
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://unpkg.com/framer-motion@10/dist/framer-motion.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/antd@5/dist/reset.css" />
+
+  <style>
+    :root {
+      --bg: #06060f;
+      --purple: #8b5cf6;
+      --cyan: #22d3ee;
+    }
+    body {
+      background: var(--bg);
+      color: #e8ecf2;
+      font-family: Inter, system-ui;
+      margin: 0;
+    }
+    .navbar {
+      padding: 16px 48px;
+      background: rgba(12,12,29,.85);
+      font-size: 20px;
+      font-weight: 700;
+    }
+    .container {
+      max-width: 1200px;
+      margin: auto;
+      padding: 40px;
+    }
+    .card {
+      background: rgba(18,16,42,.6);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 20px;
+      cursor: pointer;
+    }
+    .btn {
+      background: linear-gradient(135deg, var(--purple), var(--cyan));
+      border: none;
+      padding: 8px 20px;
+      border-radius: 20px;
+      color: #fff;
+      cursor: pointer;
+    }
+    .flex {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    h2 { margin-top: 40px; }
+  </style>
+</head>
+
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+const { motion } = Motion;
+const { Button, Tag } = antd;
+
+// ================= 路由 =================
+const pages = {
+  HOME: 'home',
+  TASK: 'task',
+  REWARD: 'reward'
+};
+
+function App() {
+  const [page, setPage] = React.useState(pages.HOME);
+
+  return (
+    <>
+      <div className="navbar" onClick={() => setPage(pages.HOME)}>
+        K‑Hub · 志愿者积分激励平台（演示版）
+      </div>
+
+      <div className="container">
+
+        {page === pages.HOME && (
+          <>
+            <h2>📋 任务大厅</h2>
+
+            <motion.div className="card" whileHover={{y:-6}} onClick={() => setPage(pages.TASK)}>
+              <div className="flex">
+                <div>
+                  <h3>罕见病医学文献翻译</h3>
+                  <p>将国际罕见病研究文献翻译为中文</p>
+                </div>
+                <Button className="btn">领取任务</Button>
+              </div>
+            </motion.div>
+
+            <motion.div className="card" whileHover={{y:-6}} onClick={() => setPage(pages.TASK)}>
+              <div className="flex">
+                <div>
+                  <h3>罕见病数据清洗与标注</h3>
+                  <p>对社区收集的数据进行标准化处理</p>
+                </div>
+                <Button className="btn">领取任务</Button>
+              </div>
+            </motion.div>
+
+            <h2>🎁 极客兑换站</h2>
+
+            <motion.div className="card" whileHover={{scale:1.02}} onClick={() => setPage(pages.REWARD)}>
+              <div className="flex">
+                <div>
+                  <h3>ChatGPT Plus 会员</h3>
+                  <p>🪙 2000 积分</p>
+                </div>
+                <Button className="btn">立即兑换</Button>
+              </div>
+            </motion.div>
+
+            <motion.div className="card" whileHover={{scale:1.02}} onClick={() => setPage(pages.REWARD)}>
+              <div className="flex">
+                <div>
+                  <h3>开源贡献者认证证书</h3>
+                  <p>🪙 1000 积分</p>
+                </div>
+                <Button className="btn">立即兑换</Button>
+              </div>
+            </motion.div>
+          </>
+        )}
+
+        {page === pages.TASK && (
+          <>
+            <h2>📄 任务详情页（演示）</h2>
+            <div className="card">
+              <h3>罕见病医学文献翻译</h3>
+              <p>这是一个演示页面，用于展示任务详情的交互流程。</p>
+              <br />
+              <Button className="btn" onClick={() => setPage(pages.HOME)}>返回首页</Button>
+            </div>
+          </>
+        )}
+
+        {page === pages.REWARD && (
+          <>
+            <h2>🎁 兑换详情页（演示）</h2>
+            <div className="card">
+              <h3>ChatGPT Plus 会员</h3>
+              <p>这是一个演示页面，用于展示兑换流程。</p>
+              <br />
+              <Button className="btn" onClick={() => setPage(pages.HOME)}>返回首页</Button>
+            </div>
+          </>
+        )}
+      </div>
+    </>
+  );
+}
+
+ReactDOM.createRoot(root).render(<App />);
+</script>
+</body>
+</html>
