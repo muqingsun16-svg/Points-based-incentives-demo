@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>K-Hub · 开源协作积分中心</title>
+    <style>
+        :root {
+            --bg-root: #06060f;
+            --bg-surface: #0c0c1d;
+            --bg-card: rgba(18, 16, 42, 0.55);
+            --purple-400: #a78bfa;
+            --purple-500: #8b5cf6;
+            --purple-600: #7c3aed;
+            --cyan-400: #22d3ee;
+            --cyan-500: #06b6d4;
+            --gold: #f59e0b;
+            --silver: #94a3b8;
+            --bronze: #d97706;
+            --text-primary: #e8ecf2;
+            --text-secondary: #a0aec0;
+            --text-muted: #64748b;
+            --border-subtle: rgba(139, 92, 246, 0.15);
+            --border-glow: rgba(139, 92, 246, 0.5);
+            --radius-sm: 8px;
+            --radius-md: 14px;
+            --radius-lg: 20px;
+            --radius-xl: 24px;
+            --success: #4ade80;
+            --danger: #f87171;
+            --warning: #fbbf24;
+            --font-mono: 'SF Mono', 'Cascadia Code', 'Consolas', monospace;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: var(--bg-root);
+            color: var(--text-primary);
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            background-image: linear-gradient(rgba(139, 92, 246, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(139, 92, 246, 0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            mask-image: radial-gradient(ellipse at center, black 30%, transparent 70%);
+        }
+        #app {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* 导航栏 */
+        .navbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            height: 68px;
+            background: rgba(12, 12, 29, 0.78);
+            backdrop-filter: blur(24px);
+            border-bottom: 1px solid var(--border-subtle);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .navbar-left {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 22px;
+            font-weight: 800;
+            cursor: pointer;
+            color: var(--text-primary);
+            user-select: none;
+        }
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--purple-500), var(--cyan-400));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 18px;
+        }
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2px;
+        }
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-size: 13.5px;
+            padding: 8px 13px;
+            border-radius: 8px;
+            transition: 0.2s;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--text-primary);
+            background: rgba(139, 92, 246, 0.14);
+        }
+        .navbar-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .points-display {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(139, 92, 246, 0.12);
+            border: 1px solid var(--border-subtle);
+            border-radius: 24px;
+            padding: 6px 16px 6px 6px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .points-display:hover {
+            border-color: var(--border-glow);
+        }
+        .points-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--purple-500), var(--cyan-400));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+        .points-value {
+            font-weight: 700;
+            color: var(--cyan-400);
+            font-family: var(--font-mono);
+            font-size: 15px;
+        }
+        .points-label {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        .avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        /* Hero */
+        .hero-section {
+            text-align: center;
+            padding: 22px 16px 8px;
+        }
+        .hero-title {
+            font-size: 25px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #a78bfa, #22d3ee);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.3px;
+        }
+        .community-btn {
+            background: linear-gradient(135deg, var(--purple-600), var(--cyan-500));
+            border: none;
+            color: #fff;
+            padding: 12px 28px;
+            border-radius: 26px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 15px;
+            margin: 14px 0 4px;
+            box-shadow: 0 0 28px rgba(139, 92, 246, 0.3);
+        }
+        .community-btn:hover {
+            opacity: 0.92;
+            transform: scale(1.03);
+            box-shadow: 0 0 40px rgba(139, 92, 246, 0.5);
+        }
+
+        /* 主内容区 */
+        .main-container {
+            flex: 1;
+            padding: 12px 40px 48px;
+            max-width: 900px;
+            width: 100%;
+            margin: 0 auto;
+            display: block;
+        }
+        .view-panel {
+            display: none;
+            animation: fadeSlideIn 0.35s ease;
+        }
+        .view-panel.active {
+            display: block;
+        }
+        @keyframes fadeSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 6px;
+        }
+        .section-subtitle {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 14px;
+        }
+
+        /* 任务卡片 */
+        .task-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: 18px 22px;
+            transition: 0.3s;
+            cursor: pointer;
+            margin-bottom: 12px;
+        }
+        .task-card:hover {
+            border-color: var(--border-glow);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(139, 92, 246, 0.12);
+        }
+        .task-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .project-tag {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--cyan-400);
+            background: rgba(6, 182, 212, 0.1);
+            padding: 3px 10px;
+            border-radius: 14px;
+        }
+        .status-badge {
+            font-size: 11px;
+            padding: 4px 11px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+        .status-claimed {
+            background: rgba(251, 191, 36, 0.13);
+            color: #fbbf24;
+        }
+        .status-submitted {
+            background: rgba(59, 130, 246, 0.13);
+            color: #60a5fa;
+        }
+        .status-completed {
+            background: rgba(139, 92, 246, 0.18);
+            color: var(--purple-400);
+        }
+        .task-card-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin: 10px 0 4px;
+        }
+        .task-card-desc {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+        .task-card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 12px;
+        }
+        .task-points {
+            font-weight: 700;
+            color: var(--purple-400);
+            font-size: 14px;
+        }
+        .task-hint {
+            font-size: 11px;
+            color: var(--text-muted);
+            display: block;
+            margin-top: 2px;
+        }
+        .btn {
+            padding: 10px 22px;
+            border-radius: 22px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: 0.25s;
+            background: linear-gradient(135deg, var(--purple-600), var(--purple-500));
+            color: #fff;
+            font-size: 13.5px;
+        }
+        .btn:hover {
+            box-shadow: 0 6px 22px rgba(139, 92, 246, 0.4);
+            transform: translateY(-1px);
+        }
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        .btn-outline {
+            background: transparent;
+            border: 1.5px solid rgba(6, 182, 212, 0.4);
+            color: var(--cyan-400);
+            padding: 10px 20px;
+            border-radius: 22px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.25s;
+            font-size: 13.5px;
+        }
+        .btn-outline:hover {
+            background: rgba(6, 182, 212, 0.1);
+            border-color: var(--cyan-400);
+            color: #fff;
+        }
+        .btn-large {
+            padding: 14px 32px;
+            border-radius: 28px;
+            font-weight: 700;
+            font-size: 15px;
+            border: none;
+            cursor: pointer;
+            transition: 0.3s;
+            background: linear-gradient(135deg, #f59e0b, #ef4444);
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(245, 158, 11, 0.3);
+            letter-spacing: 0.5px;
+        }
+        .btn-large:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(245, 158, 11, 0.5);
+        }
+        .btn-large.purple {
+            background: linear-gradient(135deg, var(--purple-600), var(--purple-400));
+            box-shadow: 0 4px 20px rgba(139, 92, 246, 0.35);
+        }
+        .btn-large.purple:hover {
+            box-shadow: 0 8px 32px rgba(139, 92, 246, 0.55);
+        }
+        .empty-hint {
+            text-align: center;
+            color: var(--text-muted);
+            padding: 28px;
+            font-size: 14px;
+        }
+
+        /* 兑换卡片 */
+        .reward-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: 18px 22px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            transition: 0.3s;
+        }
+        .reward-card:hover {
+            border-color: var(--border-glow);
+            transform: translateY(-2px);
+        }
+        .reward-icon {
+            font-size: 32px;
+            flex-shrink: 0;
+        }
+        .reward-info {
+            flex: 1;
+        }
+        .reward-stock {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+        .reward-stock.low {
+            color: var(--warning);
+        }
+        .reward-cost {
+            font-weight: 700;
+            color: var(--cyan-400);
+            font-family: var(--font-mono);
+            font-size: 14px;
+        }
+        .want-btn {
+            display: inline-block;
+            margin-top: 16px;
+            padding: 10px 24px;
+            border-radius: 22px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.25s;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px dashed rgba(255, 255, 255, 0.25);
+            color: var(--text-secondary);
+            font-size: 13.5px;
+        }
+        .want-btn:hover {
+            border-color: var(--cyan-400);
+            color: var(--cyan-400);
+            background: rgba(6, 182, 212, 0.06);
+        }
+
+        /* 模态框 */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.65);
+            backdrop-filter: blur(8px);
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: 0.3s;
+        }
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .modal {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-xl);
+            padding: 28px 30px;
+            max-width: 600px;
+            width: 92%;
+            max-height: 82vh;
+            overflow-y: auto;
+            color: var(--text-primary);
+        }
+        .modal.wide {
+            max-width: 720px;
+        }
+        .close-modal {
+            float: right;
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 26px;
+            cursor: pointer;
+            line-height: 1;
+            opacity: 0.7;
+            transition: 0.2s;
+        }
+        .close-modal:hover {
+            opacity: 1;
+        }
+
+        /* 星光榜 */
+        .leaderboard-podium {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 16px;
+            margin: 20px 0 24px;
+        }
+        .podium-item {
+            text-align: center;
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            padding: 18px 14px;
+            border: 1px solid var(--border-subtle);
+            min-width: 100px;
+            transition: 0.3s;
+        }
+        .podium-item.rank-1 {
+            order: 2;
+            border-color: rgba(245, 158, 11, 0.5);
+            box-shadow: 0 0 36px rgba(245, 158, 11, 0.2);
+            min-width: 120px;
+            padding: 22px 18px;
+        }
+        .podium-item.rank-2 {
+            order: 1;
+            border-color: rgba(148, 163, 184, 0.4);
+        }
+        .podium-item.rank-3 {
+            order: 3;
+            border-color: rgba(217, 119, 6, 0.4);
+        }
+        .podium-rank {
+            font-size: 36px;
+            margin-bottom: 4px;
+        }
+        .podium-name {
+            font-weight: 700;
+            font-size: 17px;
+            margin: 4px 0;
+        }
+        .podium-points {
+            color: var(--cyan-400);
+            font-weight: 700;
+            font-family: var(--font-mono);
+        }
+        .leaderboard-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 8px;
+        }
+        .leaderboard-table th,
+        .leaderboard-table td {
+            padding: 10px 14px;
+            text-align: left;
+        }
+        .leaderboard-table th {
+            color: var(--text-muted);
+            font-size: 11px;
+            border-bottom: 1px solid var(--border-subtle);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .leaderboard-table tbody tr {
+            transition: 0.2s;
+            border-bottom: 1px solid rgba(139, 92, 246, 0.06);
+        }
+        .leaderboard-table tbody tr:hover {
+            background: rgba(139, 92, 246, 0.06);
+        }
+        .period-tabs {
+            display: flex;
+            gap: 6px;
+            margin: 12px 0 16px;
+            flex-wrap: wrap;
+        }
+        .period-tab {
+            padding: 9px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            transition: 0.25s;
+            border: 1.5px solid rgba(255, 255, 255, 0.15);
+            background: transparent;
+            color: var(--text-secondary);
+        }
+        .period-tab:hover {
+            border-color: rgba(139, 92, 246, 0.5);
+            color: #fff;
+        }
+        .period-tab.active {
+            background: rgba(139, 92, 246, 0.2);
+            border-color: var(--purple-500);
+            color: #fff;
+            box-shadow: 0 0 16px rgba(139, 92, 246, 0.25);
+        }
+
+        /* 勋章墙 */
+        .medal-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 18px;
+            margin: 16px 0;
+            justify-content: center;
+        }
+        .medal-item {
+            text-align: center;
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: 20px 18px;
+            min-width: 90px;
+            transition: 0.3s;
+        }
+        .medal-item:hover {
+            border-color: var(--border-glow);
+            transform: translateY(-3px);
+        }
+        .medal-emoji {
+            font-size: 40px;
+            display: block;
+            margin-bottom: 6px;
+        }
+        .medal-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            top: 88px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(18, 16, 42, 0.96);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 12px 26px;
+            z-index: 999;
+            opacity: 0;
+            transition: 0.3s;
+            pointer-events: none;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .toast.show {
+            opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 0 12px;
+                height: 56px;
+            }
+            .nav-links a {
+                font-size: 11px;
+                padding: 6px 7px;
+            }
+            .main-container {
+                padding: 10px 14px 36px;
+            }
+            .leaderboard-podium {
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+            .podium-item {
+                min-width: 80px;
+                padding: 12px 8px;
+            }
+            .podium-item.rank-1 {
+                min-width: 90px;
+                padding: 16px 10px;
+            }
+            .modal {
+                padding: 18px 14px;
+                max-width: 96%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- 导航栏 -->
+        <header class="navbar">
+            <div class="navbar-left">
+                <div class="logo" onclick="switchView('tasks')">
+                    <div class="logo-icon">K</div><span>K-Hub</span>
+                </div>
+                <nav>
+                    <ul class="nav-links" id="nav-links">
+                        <li><a href="#" data-nav="tasks" class="active" onclick="switchView('tasks');return false;">我的任务</a></li>
+                        <li><a href="#" data-nav="rewards" onclick="switchView('rewards');return false;">积分兑换</a></li>
+                        <li><a href="#" data-nav="leaderboard" onclick="openLeaderboard();return false;">星光榜</a></li>
+                        <li><a href="#" data-nav="medals" onclick="openMedalWall();return false;">我的勋章</a></li>
+                        <li><a href="#" data-nav="history" onclick="openPointsHistory();return false;">积分收支明细</a></li>
+                    </ul>
+                </nav>
+            </div>
+            <div class="navbar-right">
+                <div class="points-display" onclick="openPointsHistory()" title="查看积分明细">
+                    <div class="points-icon">⚡</div>
+                    <div>
+                        <span class="points-value" id="points-value">2,450</span>
+                        <span class="points-label">现有积分</span>
+                    </div>
+                </div>
+                <div class="avatar" title="李">李</div>
+            </div>
+        </header>
+
+        <!-- 激励语 + 社区按钮 -->
+        <div class="hero-section">
+            <h2 class="hero-title">每一份贡献，都在点亮罕见病研究的星光</h2>
+            <a href="https://khub.gulu9832.xyz/" target="_blank" class="community-btn">🌐 进入社区协作平台</a>
+        </div>
+
+        <!-- 主内容区 -->
+        <main class="main-container" id="main-content">
+            <!-- 我的任务视图 -->
+            <div class="view-panel active" id="view-tasks">
+                <div class="section-title"><span>📋</span> 我的任务</div>
+                <div class="section-subtitle">提交成果获得积分 · 来自社区协作平台已领取的任务</div>
+                <div id="tasks-container"></div>
+                <div class="empty-hint">— 到底啦，快去社区平台领取更多任务吧 —</div>
+            </div>
+
+            <!-- 积分兑换视图 -->
+            <div class="view-panel" id="view-rewards">
+                <div class="section-title"><span>🎁</span> 积分兑换</div>
+                <div class="section-subtitle">用积分兑换 AI 会员等实用权益</div>
+                <div id="rewards-container"></div>
+                <button class="want-btn" onclick="openWantModal()">💡 我想要… 提交兑换建议</button>
+            </div>
+        </main>
+
+        <!-- 提交成果模态框 -->
+        <div class="modal-overlay" id="submit-modal">
+            <div class="modal">
+                <button class="close-modal" onclick="closeModal('submit-modal')">&times;</button>
+                <h3>📤 提交成果兑换积分</h3>
+                <p id="submit-task-title" style="margin:12px 0;font-weight:600;"></p>
+                <label style="font-size:14px;">上传文件：</label>
+                <input type="file" style="margin:8px 0;display:block;color:var(--text-secondary);">
+                <textarea placeholder="备注说明（可选）…" style="width:100%;margin-top:8px;background:rgba(255,255,255,0.05);border:1px solid var(--border-subtle);border-radius:8px;padding:10px;color:#fff;resize:vertical;" rows="3"></textarea>
+                <button class="btn" style="margin-top:14px;" onclick="submitTask()">确认提交，等待审核</button>
+                <p style="font-size:12px;color:var(--text-muted);margin-top:8px;">提交后进入审核流程，通过后积分自动到账</p>
+            </div>
+        </div>
+
+        <!-- 积分收支明细模态框 -->
+        <div class="modal-overlay" id="history-modal">
+            <div class="modal">
+                <button class="close-modal" onclick="closeModal('history-modal')">&times;</button>
+                <h3>📊 积分收支明细</h3>
+                <div id="history-list" style="max-height:56vh;overflow-y:auto;margin-top:14px;"></div>
+            </div>
+        </div>
+
+        <!-- 星光榜模态框 -->
+        <div class="modal-overlay" id="leaderboard-modal">
+            <div class="modal wide">
+                <button class="close-modal" onclick="closeModal('leaderboard-modal')">&times;</button>
+                <h3 style="font-size:22px;">🏆 星光榜</h3>
+                <p style="font-size:13px;color:var(--text-muted);">累计积分排名 · 季度前三自动获得卓越者勋章</p>
+                <div class="period-tabs" id="period-tabs">
+                    <button class="period-tab active" data-period="day" onclick="switchLeaderboard('day', this)">🌅 日榜</button>
+                    <button class="period-tab" data-period="week" onclick="switchLeaderboard('week', this)">📅 周榜</button>
+                    <button class="period-tab" data-period="month" onclick="switchLeaderboard('month', this)">🌙 月榜</button>
+                    <button class="period-tab" data-period="quarter" onclick="switchLeaderboard('quarter', this)">🍂 季度榜</button>
+                </div>
+                <div id="leaderboard-podium" class="leaderboard-podium"></div>
+                <table class="leaderboard-table">
+                    <thead><tr><th>排名</th><th>用户</th><th>累计积分</th><th>荣誉</th></tr></thead>
+                    <tbody id="leaderboard-body"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 我的勋章模态框 -->
+        <div class="modal-overlay" id="medal-modal">
+            <div class="modal" style="max-width:560px;">
+                <button class="close-modal" onclick="closeModal('medal-modal')">&times;</button>
+                <h3>🏅 我的勋章</h3>
+                <div id="medal-wall" class="medal-grid"></div>
+                <div style="border-top:1px solid var(--border-subtle);padding-top:18px;margin-top:8px;">
+                    <p style="font-size:13px;color:var(--text-secondary);margin-bottom:6px;">✨ <strong>季度卓越者勋章</strong>：集齐4个月度卓越者勋章可合成</p>
+                    <p style="font-size:13px;color:var(--text-secondary);margin-bottom:6px;">👑 <strong>年度卓越者勋章</strong>：集齐4个季度卓越者勋章可合成</p>
+                    <p style="font-size:13px;color:var(--text-secondary);margin-bottom:14px;">📜 <strong>荣誉证书</strong>：不消耗勋章，联系负责人即可兑换</p>
+                    <div style="display:flex;gap:12px;flex-wrap:wrap;">
+                        <button class="btn-large purple" onclick="synthesizeMedal()">🔨 合成勋章</button>
+                        <button class="btn-large" onclick="exchangeCertificate()">📜 兑换荣誉证书</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 我想要建议模态框 -->
+        <div class="modal-overlay" id="want-modal">
+            <div class="modal">
+                <button class="close-modal" onclick="closeModal('want-modal')">&times;</button>
+                <h3>💡 我想要…</h3>
+                <p style="font-size:13px;color:var(--text-secondary);margin:8px 0;">告诉我们你想用积分兑换什么权益</p>
+                <input type="text" placeholder="例如：Notion 会员、图灵会员…" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--border-subtle);border-radius:8px;padding:10px;color:#fff;margin:8px 0;">
+                <textarea placeholder="详细描述…" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--border-subtle);border-radius:8px;padding:10px;color:#fff;resize:vertical;margin:8px 0;" rows="2"></textarea>
+                <button class="btn" style="margin-top:8px;" onclick="submitWant()">提交建议</button>
+            </div>
+        </div>
+
+        <div class="toast" id="toast">提示</div>
+    </div>
+
+    <script>
+        (function() {
+            // ---------- 数据 ----------
+            const projects = [
+                { id: 'p3', name: '无障碍工具开发', icon: '♿' },
+                { id: 'p4', name: '健康应用', icon: '❤️' }
+            ];
+            const tasksData = [
+                { id: 3, projectId: 'p3', title: '开发无障碍阅读器插件', desc: '为视障患者提供阅读辅助', points: 800 },
+                { id: 4, projectId: 'p4', title: '健康患者数据可视化面板', desc: '搭建罕见病数据看板', points: 600 },
+                { id: 5, projectId: 'p4', title: '在线问诊预约系统', desc: '优化罕见病问诊流程', points: 700 },
+                { id: 6, projectId: 'p3', title: '药品提醒小程序', desc: '帮助患者按时服药', points: 400 },
+                { id: 7, projectId: 'p4', title: '康复训练视频平台', desc: '提供康复指导视频', points: 550 }
+            ];
+
+            const rewardsData = [
+                { id: 1, category: 'ai-membership', title: '妙哒AI月卡', desc: 'GPT-4o 每月1000次', cost: 800,
+                    icon: '🤖', stock: 5, redeemed: 0 },
+                { id: 2, category: 'ai-membership', title: '妙哒AI半年卡', desc: '半年无限次使用', cost: 4000,
+                    icon: '🧠', stock: 5, redeemed: 3 },
+                { id: 3, category: 'ai-membership', title: '妙哒AI年卡', desc: '全年无限次，优先体验新功能', cost: 7000,
+                    icon: '👑', stock: 5, redeemed: 1 }
+            ];
+
+            let userPoints = 2450;
+            const taskStatusMap = new Map(tasksData.map(t => [t.id, 'claimed']));
+            let currentSubmitTaskId = null;
+            let currentLeaderboardPeriod = 'month';
+
+            const pointsHistory = [
+                { userId: 'user_li', type: 'income', amount: 500, balance: 500, desc: '完成翻译任务', time: Date
+                        .now() - 86400000 * 2 },
+                { userId: 'user_li', type: 'income', amount: 300, balance: 800, desc: '数据清洗', time: Date.now() -
+                        86400000 * 5 },
+                { userId: 'user_zhang', type: 'income', amount: 800, balance: 800, desc: '无障碍插件开发', time: Date
+                        .now() - 3600000 * 5 },
+                { userId: 'user_zhang', type: 'income', amount: 600, balance: 1400, desc: '数据面板', time: Date.now() -
+                        86400000 * 4 },
+                { userId: 'user_wang', type: 'income', amount: 1200, balance: 1200, desc: '文献翻译', time: Date.now() -
+                        86400000 * 1 },
+                { userId: 'user_wang', type: 'income', amount: 400, balance: 1600, desc: '药品提醒', time: Date.now() -
+                        86400000 * 3 },
+                { userId: 'user_zhao', type: 'income', amount: 700, balance: 700, desc: '问诊系统', time: Date.now() -
+                        86400000 * 6 },
+                { userId: 'user_sun', type: 'income', amount: 900, balance: 900, desc: '康复视频', time: Date.now() -
+                        86400000 * 2 },
+                { userId: 'user_qian', type: 'income', amount: 1100, balance: 1100, desc: '翻译任务', time: Date.now() -
+                        86400000 * 8 },
+                { userId: 'user_li', type: 'income', amount: 350, balance: 1150, desc: '术语表维护', time: Date.now() -
+                        86400000 * 12 },
+                { userId: 'user_zhang', type: 'income', amount: 450, balance: 1850, desc: '审核任务', time: Date.now() -
+                        86400000 * 15 },
+                { userId: 'user_li', type: 'expense', amount: -800, balance: 350, desc: '兑换: 妙哒AI月卡', time: Date
+                        .now() - 86400000 * 20 },
+                { userId: 'user_li', type: 'income', amount: 600, balance: 950, desc: '数据面板开发', time: Date.now() -
+                        86400000 * 25 },
+            ];
+
+            const userMedals = {
+                monthly: ['2025-01', '2025-02', '2025-03'],
+                quarterly: [],
+                yearly: []
+            };
+
+            // DOM
+            const $pointsValue = document.getElementById('points-value');
+            const $tasksContainer = document.getElementById('tasks-container');
+            const $rewardsContainer = document.getElementById('rewards-container');
+            const $toast = document.getElementById('toast');
+
+            function format(n) { return n.toLocaleString('en-US'); }
+
+            function showToast(msg) {
+                $toast.textContent = msg;
+                $toast.classList.add('show');
+                setTimeout(() => $toast.classList.remove('show'), 2400);
+            }
+
+            function updatePointsDisplay() { $pointsValue.textContent = format(userPoints); }
+
+            // 视图切换
+            function switchView(view) {
+                document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
+                const target = document.getElementById('view-' + view);
+                if (target) {
+                    target.classList.add('active');
+                    target.style.animation = 'none';
+                    void target.offsetWidth;
+                    target.style.animation = 'fadeSlideIn 0.35s ease';
+                }
+                updateNavActive(view);
+                renderAll();
+            }
+
+            function updateNavActive(section) {
+                document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+                const link = document.querySelector(`.nav-links a[data-nav="${section}"]`);
+                if (link) link.classList.add('active');
+            }
+            window.switchView = switchView;
+
+            // 渲染我的任务
+            function renderTasks() {
+                const html = tasksData.map(t => {
+                    const proj = projects.find(p => p.id === t.projectId);
+                    const status = taskStatusMap.get(t.id) || 'claimed';
+                    const statusMap = { claimed: '待提交', submitted: '审核中', completed: '已完成' };
+                    const statusText = statusMap[status] || '待提交';
+                    const statusClass = 'status-' + status;
+                    const disabled = (status === 'submitted' || status === 'completed') ? 'disabled' : '';
+                    return `
+                <div class="task-card">
+                  <div class="task-card-header">
+                    <span class="project-tag">${proj?.icon||''} ${proj?.name||''}</span>
+                    <span class="status-badge ${statusClass}">${statusText}</span>
+                  </div>
+                  <div class="task-card-title">${t.title}</div>
+                  <div class="task-card-desc">${t.desc}</div>
+                  <div class="task-card-footer">
+                    <div>
+                      <span class="task-points">🪙 ${format(t.points)} 积分</span>
+                      <span class="task-hint">提交成果获得积分</span>
+                    </div>
+                    <button class="btn" ${disabled} onclick="event.stopPropagation();openSubmitModal(${t.id})">提交成果</button>
+                  </div>
+                </div>`;
+                }).join('');
+                $tasksContainer.innerHTML = html;
+            }
+
+            // 提交成果
+            window.openSubmitModal = function(taskId) {
+                currentSubmitTaskId = taskId;
+                const task = tasksData.find(t => t.id === taskId);
+                document.getElementById('submit-task-title').textContent = '任务：' + (task?.title || '');
+                document.getElementById('submit-modal').classList.add('active');
+            };
+            window.submitTask = function() {
+                if (!currentSubmitTaskId) return;
+                taskStatusMap.set(currentSubmitTaskId, 'submitted');
+                document.getElementById('submit-modal').classList.remove('active');
+                showToast('📤 成果已提交，审核中，请耐心等待…');
+                renderAll();
+                setTimeout(() => {
+                    const task = tasksData.find(t => t.id === currentSubmitTaskId);
+                    if (task && taskStatusMap.get(currentSubmitTaskId) === 'submitted') {
+                        taskStatusMap.set(currentSubmitTaskId, 'completed');
+                        userPoints += task.points;
+                        pointsHistory.push({ userId: 'user_li', type: 'income', amount: task.points,
+                            balance: userPoints, desc: '完成任务: ' + task.title, time: Date.now() });
+                        updatePointsDisplay();
+                        renderAll();
+                        showToast('🎉 审核通过！+' + format(task.points) + ' 积分已到账');
+                        checkMonthlyMedal();
+                    }
+                }, 5000);
+            };
+
+            // 渲染积分兑换
+            function renderRewards() {
+                let html = '<h4 style="color:var(--text-secondary);margin-bottom:10px;">🤖 AI 会员</h4>';
+                rewardsData.forEach(r => {
+                    const remaining = r.stock - r.redeemed;
+                    const can = userPoints >= r.cost && remaining > 0;
+                    const stockClass = remaining <= 1 ? 'low' : '';
+                    html += `
+                <div class="reward-card">
+                  <div class="reward-icon">${r.icon}</div>
+                  <div class="reward-info">
+                    <strong>${r.title}</strong>
+                    <div style="font-size:12px;color:var(--text-muted);">${r.desc}</div>
+                    <div class="reward-stock ${stockClass}">余量 ${remaining}/${r.stock}</div>
+                  </div>
+                  <div style="text-align:right;">
+                    <span class="reward-cost">${format(r.cost)} 积分</span><br>
+                    <button class="btn-outline" style="margin-top:4px;" ${!can?'disabled':''} onclick="event.stopPropagation();redeemReward(${r.id})">${remaining===0?'已兑完':can?'兑换':'积分不足'}</button>
+                  </div>
+                </div>`;
+                });
+                $rewardsContainer.innerHTML = html;
+            }
+
+            window.redeemReward = function(rewardId) {
+                const reward = rewardsData.find(r => r.id === rewardId);
+                if (!reward) return;
+                const remaining = reward.stock - reward.redeemed;
+                if (remaining <= 0) { showToast('该权益已兑完'); return; }
+                if (userPoints < reward.cost) { showToast('积分不足'); return; }
+                userPoints -= reward.cost;
+                reward.redeemed += 1;
+                pointsHistory.push({ userId: 'user_li', type: 'expense', amount: -reward.cost, balance: userPoints,
+                    desc: '兑换: ' + reward.title, time: Date.now() });
+                updatePointsDisplay();
+                renderAll();
+                showToast('✅ 兑换成功！消耗 ' + format(reward.cost) + ' 积分');
+            };
+
+            // 我想要
+            window.openWantModal = function() {
+                document.getElementById('want-modal').classList.add('active');
+            };
+            window.submitWant = function() {
+                document.getElementById('want-modal').classList.remove('active');
+                showToast('💡 感谢你的建议！我们会认真考虑~');
+            };
+
+            // 积分收支明细
+            window.openPointsHistory = function() {
+                const userHistory = pointsHistory.filter(h => h.userId === 'user_li').reverse();
+                const list = document.getElementById('history-list');
+                list.innerHTML = userHistory.length === 0 ? '<p style="color:var(--text-muted);">暂无记录</p>' :
+                    userHistory.map(h => `
+                <div style="border-bottom:1px solid var(--border-subtle);padding:9px 0;">
+                  <span style="color:${h.type==='income'?'var(--success)':'var(--danger)'};font-weight:600;">${h.type==='income'?'+':'-'}${format(Math.abs(h.amount))}</span>
+                  <span style="margin-left:12px;">${h.desc}</span>
+                  <span style="float:right;font-size:11px;color:var(--text-muted);">${new Date(h.time).toLocaleString()}</span>
+                </div>`).join('');
+                document.getElementById('history-modal').classList.add('active');
+                updateNavActive('history');
+            };
+
+            // 星光榜
+            function computeLeaderboard(period) {
+                const now = Date.now();
+                const ranges = { day: 86400000, week: 604800000, month: 2592000000, quarter: 7776000000 };
+                const since = now - (ranges[period] || ranges.month);
+                const userMap = {
+                    'user_li': '李',
+                    'user_zhang': '张三',
+                    'user_wang': '王五',
+                    'user_zhao': '赵六',
+                    'user_sun': '孙七',
+                    'user_qian': '钱八'
+                };
+                const sums = {};
+                pointsHistory.forEach(h => {
+                    if (h.time >= since && h.type === 'income') {
+                        sums[h.userId] = (sums[h.userId] || 0) + h.amount;
+                    }
+                });
+                return Object.entries(sums).map(([uid, total]) => ({ name: userMap[uid] || uid, total }))
+                    .sort((a, b) => b.total - a.total);
+            }
+
+            window.switchLeaderboard = function(period, btnEl) {
+                currentLeaderboardPeriod = period;
+                // 更新tab样式
+                document.querySelectorAll('#period-tabs .period-tab').forEach(t => t.classList.remove(
+                    'active'));
+                if (btnEl) btnEl.classList.add('active');
+                else {
+                    const targetTab = document.querySelector(`#period-tabs .period-tab[data-period="${period}"]`);
+                    if (targetTab) targetTab.classList.add('active');
+                }
+                const data = computeLeaderboard(period);
+                // 前三名领奖台
+                const podium = document.getElementById('leaderboard-podium');
+                const top3 = data.slice(0, 3);
+                const podiumEmojis = ['🥇', '🥈', '🥉'];
+                const rankClasses = ['rank-1', 'rank-2', 'rank-3'];
+                // 按排名顺序排列：第2名、第1名、第3名
+                const ordered = [];
+                if (top3[1]) ordered.push({ ...top3[1], rank: 2, emoji: '🥈', cls: 'rank-2' });
+                if (top3[0]) ordered.push({ ...top3[0], rank: 1, emoji: '🥇', cls: 'rank-1' });
+                if (top3[2]) ordered.push({ ...top3[2], rank: 3, emoji: '🥉', cls: 'rank-3' });
+                podium.innerHTML = ordered.map(u => `
+              <div class="podium-item ${u.cls}">
+                <div class="podium-rank">${u.emoji}</div>
+                <div class="podium-name">${u.name}</div>
+                <div class="podium-points">${format(u.total)} 积分</div>
+              </div>`).join('');
+
+                // 完整榜单
+                const tbody = document.getElementById('leaderboard-body');
+                tbody.innerHTML = data.map((u, i) => {
+                    let honor = '';
+                    if (i < 3) honor = '🏅 卓越者';
+                    return `
+                <tr>
+                  <td><span style="font-weight:700;">#${i+1}</span></td>
+                  <td>${u.name}</td>
+                  <td style="font-family:var(--font-mono);color:var(--cyan-400);">${format(u.total)}</td>
+                  <td>${honor}</td>
+                </tr>`;
+                }).join('');
+            };
+
+            window.openLeaderboard = function() {
+                document.getElementById('leaderboard-modal').classList.add('active');
+                updateNavActive('leaderboard');
+                // 重置tab并加载月榜
+                document.querySelectorAll('#period-tabs .period-tab').forEach(t => t.classList.remove('active'));
+                const monthTab = document.querySelector('#period-tabs .period-tab[data-period="month"]');
+                if (monthTab) monthTab.classList.add('active');
+                currentLeaderboardPeriod = 'month';
+                window.switchLeaderboard('month', monthTab);
+            };
+
+            // 我的勋章
+            function checkMonthlyMedal() {
+                const now = new Date();
+                const monthKey = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+                if (!userMedals.monthly.includes(monthKey)) {
+                    userMedals.monthly.push(monthKey);
+                    showToast('🏅 恭喜获得本月卓越者勋章！');
+                }
+            }
+
+            function renderMedalWall() {
+                const wall = document.getElementById('medal-wall');
+                let html = '';
+                userMedals.monthly.forEach(m => html +=
+                    `<div class="medal-item"><span class="medal-emoji">🌟</span><span class="medal-label">月度勋章</span><small>${m}</small></div>`
+                    );
+                userMedals.quarterly.forEach(q => html +=
+                    `<div class="medal-item"><span class="medal-emoji">🏅</span><span class="medal-label">季度勋章</span><small>${q}</small></div>`
+                    );
+                userMedals.yearly.forEach(y => html +=
+                    `<div class="medal-item"><span class="medal-emoji">👑</span><span class="medal-label">年度勋章</span><small>${y}</small></div>`
+                    );
+                wall.innerHTML = html || '<p style="color:var(--text-muted);text-align:center;width:100%;">暂无勋章，快去提交成果吧</p>';
+            }
+            window.openMedalWall = function() {
+                renderMedalWall();
+                document.getElementById('medal-modal').classList.add('active');
+                updateNavActive('medals');
+            };
+            window.synthesizeMedal = function() {
+                if (userMedals.monthly.length >= 4) {
+                    userMedals.monthly.splice(0, 4);
+                    const q = '2025-Q' + (userMedals.quarterly.length + 1);
+                    userMedals.quarterly.push(q);
+                    showToast('🎉 合成季度卓越者勋章！');
+                } else if (userMedals.quarterly.length >= 4) {
+                    userMedals.quarterly.splice(0, 4);
+                    userMedals.yearly.push('2025');
+                    showToast('👑 合成年度卓越者勋章！');
+                } else {
+                    showToast('勋章不足，无法合成（需4个同级别勋章）');
+                }
+                renderMedalWall();
+            };
+            window.exchangeCertificate = function() {
+                const total = userMedals.monthly.length + userMedals.quarterly.length + userMedals.yearly.length;
+                if (total === 0) {
+                    showToast('暂无勋章可兑换证书');
+                    return;
+                }
+                showToast('📜 正在联系负责人，谢谢你的付出！请留意邮箱通知～');
+            };
+
+            // 关闭模态框
+            window.closeModal = function(id) {
+                document.getElementById(id).classList.remove('active');
+            };
+
+            function renderAll() {
+                renderTasks();
+                renderRewards();
+            }
+
+            // 初始化
+            updatePointsDisplay();
+            renderAll();
+            if (userMedals.monthly.length === 0) userMedals.monthly = ['2025-01', '2025-02', '2025-03'];
+
+            console.log('%c🌟 K-Hub 积分中心 %c已就绪',
+                'color:#a78bfa;font-size:16px;', 'color:#e8ecf2;');
+        })();
+    </script>
+</body>
+</html>
