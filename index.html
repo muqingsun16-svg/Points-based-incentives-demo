@@ -2,1512 +2,499 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>K-Hub - 志愿者积分激励与兑换中心</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>K-Hub · 开源协作积分中心</title>
     <style>
-        /* ================================================================
-               K-Hub 全局样式 — 冷紫 × 科技蓝 · 深色模式 · 桌面端优先
-               ================================================================ */
-
         :root {
             --bg-root: #06060f;
             --bg-surface: #0c0c1d;
             --bg-card: rgba(18, 16, 42, 0.55);
-            --bg-card-hover: rgba(22, 20, 55, 0.7);
             --purple-400: #a78bfa;
             --purple-500: #8b5cf6;
             --purple-600: #7c3aed;
-            --purple-700: #6d28d9;
-            --purple-glow: rgba(139, 92, 246, 0.45);
-            --blue-400: #38bdf8;
-            --blue-500: #0ea5e9;
             --cyan-400: #22d3ee;
             --cyan-500: #06b6d4;
-            --cyan-glow: rgba(6, 182, 212, 0.45);
             --text-primary: #e8ecf2;
             --text-secondary: #a0aec0;
             --text-muted: #64748b;
             --border-subtle: rgba(139, 92, 246, 0.15);
             --border-glow: rgba(139, 92, 246, 0.5);
-            --radius-sm: 8px;
-            --radius-md: 14px;
             --radius-lg: 20px;
-            --radius-xl: 24px;
             --success: #4ade80;
             --danger: #f87171;
             --warning: #fbbf24;
+            --font-mono: 'SF Mono', 'Cascadia Code', 'Consolas', monospace;
         }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin:0; padding:0; box-sizing:border-box; }
         body {
             font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif;
-            background: var(--bg-root);
-            color: var(--text-primary);
-            min-height: 100vh;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
+            background: var(--bg-root); color: var(--text-primary);
+            min-height: 100vh; -webkit-font-smoothing: antialiased;
         }
-
-        /* 网格背景 */
         body::before {
-            content: '';
-            position: fixed;
-            inset: 0;
-            pointer-events: none;
-            z-index: 0;
+            content: ''; position: fixed; inset:0; pointer-events:none; z-index:0;
             background-image:
-                linear-gradient(rgba(139, 92, 246, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(139, 92, 246, 0.03) 1px, transparent 1px);
+                linear-gradient(rgba(139,92,246,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(139,92,246,0.03) 1px, transparent 1px);
             background-size: 60px 60px;
             mask-image: radial-gradient(ellipse at center, black 30%, transparent 70%);
-            -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 70%);
         }
-
-        #app {
-            position: relative;
-            z-index: 1;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-
-        /* ================================================================
-               顶部导航栏 Navbar
-               ================================================================ */
+        #app { position:relative; z-index:1; display:flex; flex-direction:column; min-height:100vh; }
         .navbar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 48px;
-            height: 68px;
-            background: rgba(12, 12, 29, 0.75);
-            backdrop-filter: blur(24px) saturate(180%);
-            -webkit-backdrop-filter: blur(24px) saturate(180%);
-            border-bottom: 1px solid var(--border-subtle);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            transition: border-color 0.3s ease;
+            display:flex; align-items:center; justify-content:space-between;
+            padding:0 40px; height:68px; background:rgba(12,12,29,0.78);
+            backdrop-filter:blur(24px); border-bottom:1px solid var(--border-subtle);
+            position:sticky; top:0; z-index:100;
         }
-
-        .navbar-left {
-            display: flex;
-            align-items: center;
-            gap: 40px;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 22px;
-            font-weight: 800;
-            letter-spacing: -0.5px;
-            cursor: pointer;
-            color: var(--text-primary);
-            user-select: none;
-            transition: opacity 0.2s ease;
-        }
-        .logo:hover {
-            opacity: 0.85;
-        }
-        .logo:active {
-            opacity: 0.7;
-        }
-
+        .navbar-left { display:flex; align-items:center; gap:30px; }
+        .logo { display:flex; align-items:center; gap:10px; font-size:22px; font-weight:800; cursor:pointer; }
         .logo-icon {
-            width: 36px;
-            height: 36px;
-            background: linear-gradient(135deg, var(--purple-500), var(--cyan-400));
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            font-weight: 900;
-            color: #fff;
-            box-shadow: 0 0 20px rgba(139, 92, 246, 0.35);
-            transition: box-shadow 0.3s ease;
+            width:36px; height:36px; background:linear-gradient(135deg, var(--purple-500), var(--cyan-400));
+            border-radius:10px; display:flex; align-items:center; justify-content:center; color:#fff;
         }
-        .logo:hover .logo-icon {
-            box-shadow: 0 0 28px rgba(139, 92, 246, 0.55);
-        }
-
-        .nav-links {
-            display: flex;
-            list-style: none;
-            gap: 6px;
-        }
-
+        .nav-links { display:flex; list-style:none; gap:6px; }
         .nav-links a {
-            text-decoration: none;
-            color: var(--text-secondary);
-            font-size: 14.5px;
-            font-weight: 500;
-            padding: 8px 18px;
-            border-radius: 8px;
-            transition: all 0.25s ease;
-            cursor: pointer;
-            position: relative;
-            white-space: nowrap;
+            text-decoration:none; color:var(--text-secondary); font-size:14px; padding:8px 16px; border-radius:8px;
+            transition:0.2s;
         }
-
-        .nav-links a:hover {
-            color: var(--text-primary);
-            background: rgba(139, 92, 246, 0.1);
+        .nav-links a:hover, .nav-links a.active { color:var(--text-primary); background:rgba(139,92,246,0.12); }
+        .navbar-right { display:flex; align-items:center; gap:16px; }
+        .points-btn {
+            display:flex; align-items:center; gap:8px; background:rgba(139,92,246,0.12);
+            border:1px solid var(--border-subtle); border-radius:24px; padding:6px 16px 6px 6px;
+            cursor:pointer; color:var(--text-primary);
         }
-        .nav-links a.active {
-            color: var(--text-primary);
-            background: rgba(139, 92, 246, 0.14);
-            box-shadow: inset 0 0 0 1px rgba(139, 92, 246, 0.25);
+        .points-value { font-weight:700; color:var(--cyan-400); font-family:var(--font-mono); }
+        .avatar { width:38px; height:38px; border-radius:50%; background:linear-gradient(135deg,#4f46e5,#7c3aed); display:flex; align-items:center; justify-content:center; color:#fff; }
+        .community-btn {
+            background:linear-gradient(135deg, var(--purple-600), var(--cyan-500));
+            border:none; color:#fff; padding:8px 20px; border-radius:20px; font-weight:600;
+            cursor:pointer; transition:0.3s; text-decoration:none; display:inline-block;
         }
-
-        .navbar-right {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .points-display {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(139, 92, 246, 0.12);
-            border: 1px solid var(--border-subtle);
-            border-radius: 24px;
-            padding: 6px 18px 6px 6px;
-            color: inherit;
-            transition: border-color 0.3s ease, box-shadow 0.3s ease;
-            cursor: default;
-        }
-        .points-display.pulse-highlight {
-            border-color: var(--cyan-glow);
-            box-shadow: 0 0 20px rgba(6, 182, 212, 0.35);
-        }
-
-        .points-icon {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--purple-500), var(--cyan-400));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            flex-shrink: 0;
-            box-shadow: 0 0 14px rgba(139, 92, 246, 0.3);
-            transition: box-shadow 0.3s ease;
-        }
-
-        .points-value {
-            font-weight: 700;
-            font-size: 15px;
-            color: var(--cyan-400);
-            transition: color 0.3s ease;
-            font-variant-numeric: tabular-nums;
-            font-family: 'Inter', 'SF Mono', 'Consolas', monospace;
-        }
-        .points-value.animate-pop {
-            animation: pointPop 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        @keyframes pointPop {
-            0% {
-                transform: scale(1);
-                color: var(--cyan-400);
-            }
-            35% {
-                transform: scale(1.25);
-                color: #fff;
-            }
-            100% {
-                transform: scale(1);
-                color: var(--cyan-400);
-            }
-        }
-
-        .points-label {
-            font-size: 12px;
-            color: var(--text-muted);
-        }
-
-        .user-avatar-wrapper {
-            position: relative;
-        }
-
-        .user-avatar {
-            width: 38px;
-            height: 38px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #4f46e5, #7c3aed);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 15px;
-            color: #fff;
-            border: 2px solid rgba(139, 92, 246, 0.4);
-            cursor: pointer;
-            transition: border-color 0.3s ease, box-shadow 0.3s ease;
-        }
-        .user-avatar:hover {
-            border-color: rgba(139, 92, 246, 0.7);
-            box-shadow: 0 0 18px rgba(139, 92, 246, 0.35);
-        }
-
-        /* ================================================================
-               主内容区
-               ================================================================ */
+        .community-btn:hover { opacity:0.9; transform:scale(1.02); }
         .main-container {
-            flex: 1;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 32px;
-            padding: 36px 48px 48px;
-            max-width: 1440px;
-            width: 100%;
-            margin: 0 auto;
-            animation: fadeSlideIn 0.4s ease;
-        }
-
-        @keyframes fadeSlideIn {
-            from {
-                opacity: 0;
-                transform: translateY(12px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .section-panel {
-            display: flex;
-            flex-direction: column;
-            gap: 18px;
-        }
-
-        .section-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 4px;
-        }
-
-        .section-title {
-            font-size: 20px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .section-title .title-icon {
-            width: 28px;
-            height: 28px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 15px;
-            flex-shrink: 0;
-        }
-
-        .title-icon.task {
-            background: rgba(139, 92, 246, 0.2);
-            color: var(--purple-400);
-        }
-        .title-icon.reward {
-            background: rgba(6, 182, 212, 0.2);
-            color: var(--cyan-400);
-        }
-
-        .section-subtitle {
-            font-size: 13px;
-            color: var(--text-muted);
-            margin-top: 2px;
-        }
-
-        /* ---- 任务卡片 ---- */
-        .task-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-subtle);
-            border-radius: var(--radius-lg);
-            padding: 22px 24px;
-            transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-            user-select: none;
-        }
-        .task-card::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            border-radius: var(--radius-lg);
-            opacity: 0;
-            background: radial-gradient(circle at 30% 20%, rgba(139, 92, 246, 0.08), transparent 70%);
-            transition: opacity 0.4s ease;
-            pointer-events: none;
-            z-index: 0;
-        }
-        .task-card:hover::after {
-            opacity: 1;
-        }
-        .task-card:hover {
-            border-color: rgba(139, 92, 246, 0.45);
-            transform: translateY(-4px);
-            box-shadow: 0 12px 48px rgba(139, 92, 246, 0.14);
-        }
-        .task-card:active {
-            transform: translateY(-1px);
-            transition: transform 0.1s ease;
-        }
-        .task-card>* {
-            position: relative;
-            z-index: 1;
-        }
-
-        .task-card.claimed {
-            opacity: 0.7;
-            cursor: default;
-            border-color: rgba(139, 92, 246, 0.08);
-        }
-        .task-card.claimed:hover {
-            transform: none;
-            box-shadow: none;
-            border-color: rgba(139, 92, 246, 0.08);
-        }
-        .task-card.claimed::after {
-            display: none;
-        }
-
-        .task-card-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 10px;
-        }
-
-        .task-card-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            flex-shrink: 0;
-            transition: transform 0.3s ease;
-        }
-        .task-card:hover .task-card-icon {
-            transform: scale(1.08);
-        }
-        .task-card.claimed:hover .task-card-icon {
-            transform: none;
-        }
-
-        .task-card-icon.translate {
-            background: rgba(139, 92, 246, 0.18);
-        }
-        .task-card-icon.data {
-            background: rgba(6, 182, 212, 0.18);
-        }
-        .task-card-icon.review {
-            background: rgba(34, 211, 238, 0.18);
-        }
-
-        .difficulty-tag {
-            font-size: 11px;
-            font-weight: 600;
-            padding: 4px 11px;
-            border-radius: 20px;
-            letter-spacing: 0.3px;
-        }
-
-        .difficulty-hard {
-            background: rgba(239, 68, 68, 0.13);
-            color: #f87171;
-            border: 1px solid rgba(239, 68, 68, 0.22);
-        }
-        .difficulty-medium {
-            background: rgba(251, 191, 36, 0.13);
-            color: #fbbf24;
-            border: 1px solid rgba(251, 191, 36, 0.22);
-        }
-        .difficulty-easy {
-            background: rgba(34, 197, 94, 0.13);
-            color: #4ade80;
-            border: 1px solid rgba(34, 197, 94, 0.22);
-        }
-
-        .task-card-title {
-            font-size: 16px;
-            font-weight: 700;
-            margin-bottom: 6px;
-            color: var(--text-primary);
-        }
-        .task-card-desc {
-            font-size: 13px;
-            color: var(--text-secondary);
-            line-height: 1.6;
-            margin-bottom: 14px;
-        }
-
-        .task-card-footer {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-top: 16px;
-        }
-
-        .points-badge {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-weight: 700;
-            font-size: 14px;
-            color: var(--purple-400);
-        }
-
-        .btn-claim {
-            padding: 9px 22px;
-            border-radius: 24px;
-            font-size: 13.5px;
-            font-weight: 600;
-            border: none;
-            cursor: pointer;
-            background: linear-gradient(135deg, var(--purple-600), var(--purple-500));
-            color: #fff;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-            white-space: nowrap;
-            letter-spacing: 0.2px;
-        }
-        .btn-claim:hover {
-            background: linear-gradient(135deg, var(--purple-500), var(--purple-400));
-            box-shadow: 0 6px 24px rgba(139, 92, 246, 0.4);
-            transform: translateY(-1px);
-        }
-        .btn-claim:active {
-            transform: scale(0.96);
-            transition: transform 0.1s ease;
-        }
-        .btn-claim:disabled,
-        .btn-claim.claimed-btn {
-            background: rgba(100, 100, 130, 0.3);
-            color: var(--text-muted);
-            cursor: not-allowed;
-            pointer-events: none;
-            box-shadow: none;
-        }
-        .btn-claim.claimed-btn {
-            background: rgba(34, 197, 94, 0.15);
-            color: var(--success);
-            border: 1px solid rgba(34, 197, 94, 0.3);
-        }
-
-        /* ---- 兑换卡片 ---- */
-        .reward-card {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            background: var(--bg-card);
-            border: 1px solid var(--border-subtle);
-            border-radius: var(--radius-lg);
-            padding: 18px 22px;
-            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            cursor: pointer;
-            user-select: none;
-            position: relative;
-            overflow: hidden;
-        }
-        .reward-card::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            border-radius: var(--radius-lg);
-            opacity: 0;
-            background: radial-gradient(circle at 70% 30%, rgba(6, 182, 212, 0.06), transparent 65%);
-            transition: opacity 0.4s ease;
-            pointer-events: none;
-            z-index: 0;
-        }
-        .reward-card:hover::after {
-            opacity: 1;
-        }
-        .reward-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 44px rgba(6, 182, 212, 0.13);
-            border-color: rgba(6, 182, 212, 0.3);
-        }
-        .reward-card:active {
-            transform: translateY(-1px);
-            transition: transform 0.1s ease;
-        }
-        .reward-card>* {
-            position: relative;
-            z-index: 1;
-        }
-
-        .reward-card.redeemed {
-            opacity: 0.65;
-            cursor: default;
-            border-color: rgba(139, 92, 246, 0.06);
-        }
-        .reward-card.redeemed:hover {
-            transform: none;
-            box-shadow: none;
-            border-color: rgba(139, 92, 246, 0.06);
-        }
-        .reward-card.redeemed::after {
-            display: none;
-        }
-
-        .reward-icon {
-            width: 50px;
-            height: 50px;
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            flex-shrink: 0;
-            transition: transform 0.3s ease;
-        }
-        .reward-card:hover .reward-icon {
-            transform: scale(1.06);
-        }
-        .reward-card.redeemed:hover .reward-icon {
-            transform: none;
-        }
-
-        .reward-icon.gpt {
-            background: linear-gradient(135deg, #74aa9c, #10a37f);
-        }
-        .reward-icon.cert {
-            background: linear-gradient(135deg, #8b5cf6, #a78bfa);
-        }
-        .reward-icon.vip {
-            background: linear-gradient(135deg, #f59e0b, #ef4444);
-        }
-
-        .reward-info {
-            flex: 1;
-            min-width: 0;
-        }
-        .reward-title {
-            font-size: 15px;
-            font-weight: 700;
-            margin-bottom: 4px;
-        }
-        .reward-desc {
-            font-size: 12.5px;
-            color: var(--text-secondary);
-            line-height: 1.5;
-        }
-
-        .btn-redeem {
-            padding: 9px 20px;
-            border-radius: 24px;
-            font-size: 13px;
-            font-weight: 600;
-            border: 1.5px solid rgba(6, 182, 212, 0.4);
-            cursor: pointer;
-            background: transparent;
-            color: var(--cyan-400);
-            white-space: nowrap;
-            transition: all 0.3s ease;
-            letter-spacing: 0.2px;
-        }
-        .btn-redeem:hover {
-            background: rgba(6, 182, 212, 0.1);
-            border-color: rgba(6, 182, 212, 0.7);
-            box-shadow: 0 6px 22px rgba(6, 182, 212, 0.25);
-            color: #fff;
-        }
-        .btn-redeem:active {
-            transform: scale(0.96);
-            transition: transform 0.1s ease;
-        }
-        .btn-redeem:disabled,
-        .btn-redeem.redeemed-btn {
-            border-color: rgba(100, 100, 130, 0.25);
-            color: var(--text-muted);
-            cursor: not-allowed;
-            pointer-events: none;
-            background: transparent;
-            box-shadow: none;
-        }
-        .btn-redeem.insufficient {
-            border-color: rgba(239, 68, 68, 0.35);
-            color: var(--danger);
-            cursor: not-allowed;
-        }
-
-        /* ---- 详情页 ---- */
-        .detail-page {
-            display: none;
-            padding: 40px 48px 60px;
-            max-width: 800px;
-            width: 100%;
-            margin: 0 auto;
-            animation: fadeSlideIn 0.4s ease;
-        }
-        .detail-page.active {
-            display: block;
-        }
-
-        .back-btn {
-            background: rgba(255, 255, 255, 0.06);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: var(--text-primary);
-            padding: 10px 22px;
-            border-radius: 10px;
-            cursor: pointer;
-            margin-bottom: 28px;
-            font-size: 14px;
-            font-weight: 500;
-            transition: all 0.25s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .back-btn:hover {
-            background: rgba(255, 255, 255, 0.12);
-            border-color: rgba(139, 92, 246, 0.4);
-            box-shadow: 0 4px 16px rgba(139, 92, 246, 0.15);
-        }
-
-        .detail-title {
-            font-size: 26px;
-            font-weight: 800;
-            margin-bottom: 8px;
-            letter-spacing: -0.3px;
-        }
-        .detail-meta {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            flex-wrap: wrap;
-            margin-bottom: 24px;
-        }
-        .detail-points-tag {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            font-weight: 700;
-            font-size: 15px;
-            padding: 6px 14px;
-            border-radius: 20px;
-            background: rgba(139, 92, 246, 0.15);
-            color: var(--purple-400);
-        }
-        .detail-cost-tag {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            font-weight: 700;
-            font-size: 15px;
-            padding: 6px 14px;
-            border-radius: 20px;
-            background: rgba(6, 182, 212, 0.13);
-            color: var(--cyan-400);
-        }
-        .detail-desc {
-            line-height: 1.9;
-            color: var(--text-secondary);
-            font-size: 14.5px;
-            margin-bottom: 10px;
-        }
-        .detail-extra {
-            margin-top: 20px;
-            padding: 18px 20px;
-            background: rgba(139, 92, 246, 0.06);
-            border-radius: var(--radius-md);
-            border: 1px solid var(--border-subtle);
-            font-size: 13px;
-            color: var(--text-secondary);
-            line-height: 1.7;
-        }
-
-        .thank-you {
-            background: var(--bg-card);
-            padding: 40px;
-            border-radius: var(--radius-lg);
-            text-align: center;
-            margin-top: 30px;
-            display: none;
-            border: 1px solid rgba(34, 197, 94, 0.2);
-            animation: fadeSlideIn 0.5s ease;
-        }
-        .thank-you.active {
-            display: block;
-        }
-        .thank-you h2 {
-            color: var(--cyan-400);
-            font-size: 22px;
-            font-weight: 700;
-        }
-        .thank-you p {
-            margin-top: 12px;
-            color: var(--text-secondary);
-            font-size: 14px;
-        }
-
-        /* ---- Toast ---- */
-        .toast {
-            position: fixed;
-            top: 88px;
-            left: 50%;
-            transform: translateX(-50%) translateY(-20px);
-            background: rgba(18, 16, 42, 0.96);
-            border: 1px solid var(--border-subtle);
-            border-radius: 12px;
-            padding: 13px 28px;
-            color: var(--text-primary);
-            font-size: 14px;
-            font-weight: 500;
-            z-index: 9999;
-            opacity: 0;
-            transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            pointer-events: none;
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            letter-spacing: 0.2px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-        }
-        .toast.show {
-            opacity: 1;
-            transform: translateX(-50%) translateY(0);
-        }
-        .toast.toast-success {
-            border-color: rgba(34, 197, 94, 0.5);
-            box-shadow: 0 8px 32px rgba(34, 197, 94, 0.2);
-        }
-        .toast.toast-error {
-            border-color: rgba(239, 68, 68, 0.5);
-            box-shadow: 0 8px 32px rgba(239, 68, 68, 0.2);
-        }
-        .toast.toast-warning {
-            border-color: rgba(251, 191, 36, 0.5);
-            box-shadow: 0 8px 32px rgba(251, 191, 36, 0.2);
-        }
-
-        /* ---- 空状态 ---- */
-        .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-            color: var(--text-muted);
-            font-size: 14px;
-            border: 1px dashed var(--border-subtle);
-            border-radius: var(--radius-lg);
-            background: rgba(18, 16, 42, 0.3);
-        }
-
-        /* ================================================================
-               响应式设计
-               ================================================================ */
-        @media (max-width: 1100px) {
-            .main-container {
-                grid-template-columns: 1fr;
-                gap: 28px;
-                padding: 28px 32px 40px;
-            }
-            .navbar {
-                padding: 0 24px;
-            }
-            .navbar-left {
-                gap: 20px;
-            }
-            .detail-page {
-                padding: 28px 24px 48px;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .navbar {
-                padding: 0 16px;
-                height: 56px;
-            }
-            .nav-links {
-                gap: 2px;
-            }
-            .nav-links a {
-                font-size: 13px;
-                padding: 6px 10px;
-            }
-            .logo {
-                font-size: 18px;
-                gap: 6px;
-            }
-            .logo-icon {
-                width: 28px;
-                height: 28px;
-                font-size: 14px;
-                border-radius: 7px;
-            }
-            .points-display {
-                padding: 4px 10px 4px 4px;
-                gap: 4px;
-            }
-            .points-value {
-                font-size: 13px;
-            }
-            .points-label {
-                font-size: 10px;
-            }
-            .user-avatar {
-                width: 30px;
-                height: 30px;
-                font-size: 12px;
-            }
-            .main-container {
-                padding: 20px 16px 32px;
-                gap: 20px;
-            }
-            .task-card {
-                padding: 16px 18px;
-            }
-            .reward-card {
-                padding: 14px 16px;
-                gap: 10px;
-            }
-            .detail-page {
-                padding: 20px 16px 36px;
-            }
-            .detail-title {
-                font-size: 21px;
-            }
-            .navbar-left {
-                gap: 10px;
-            }
-            .section-title {
-                font-size: 17px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .navbar-right .points-label {
-                display: none;
-            }
-            .navbar-left .nav-links li:not(:first-child) a {
-                padding: 6px 8px;
-                font-size: 11px;
-            }
-            .btn-claim,
-            .btn-redeem {
-                padding: 7px 14px;
-                font-size: 12px;
-            }
-            .task-card-footer {
-                flex-wrap: wrap;
-                gap: 10px;
-            }
+            display:grid; grid-template-columns:1fr 1fr; gap:28px;
+            padding:28px 40px 40px; max-width:1440px; margin:0 auto;
+        }
+        .section-panel { display:flex; flex-direction:column; gap:16px; }
+        .section-title { font-size:20px; font-weight:700; display:flex; align-items:center; gap:10px; }
+        .task-card, .reward-card {
+            background:var(--bg-card); border:1px solid var(--border-subtle);
+            border-radius:var(--radius-lg); padding:18px 20px; transition:0.3s; cursor:pointer;
+        }
+        .task-card:hover, .reward-card:hover { border-color:var(--border-glow); transform:translateY(-2px); }
+        .status-badge { font-size:11px; padding:3px 10px; border-radius:20px; font-weight:600; }
+        .status-available { background:rgba(34,197,94,0.12); color:#4ade80; }
+        .status-claimed { background:rgba(251,191,36,0.15); color:#fbbf24; }
+        .status-submitted { background:rgba(59,130,246,0.15); color:#60a5fa; }
+        .status-completed { background:rgba(139,92,246,0.2); color:var(--purple-400); }
+        .btn {
+            padding:8px 18px; border-radius:20px; font-weight:600; border:none;
+            cursor:pointer; transition:0.2s; background:var(--purple-600); color:#fff;
+        }
+        .btn-outline {
+            background:transparent; border:1.5px solid rgba(6,182,212,0.4); color:var(--cyan-400);
+        }
+        .modal-overlay {
+            position:fixed; inset:0; background:rgba(0,0,0,0.6); backdrop-filter:blur(6px);
+            z-index:200; display:flex; align-items:center; justify-content:center;
+            opacity:0; pointer-events:none; transition:0.3s;
+        }
+        .modal-overlay.active { opacity:1; pointer-events:auto; }
+        .modal {
+            background:var(--bg-surface); border:1px solid var(--border-subtle);
+            border-radius:24px; padding:28px; max-width:500px; width:90%; max-height:80vh; overflow-y:auto;
+            color:var(--text-primary);
+        }
+        .close-modal { float:right; background:none; border:none; color:#fff; font-size:24px; cursor:pointer; }
+        .leaderboard-table { width:100%; border-collapse:collapse; margin-top:16px; }
+        .leaderboard-table th, .leaderboard-table td { padding:10px 12px; }
+        .leaderboard-table th { color:var(--text-muted); font-size:12px; border-bottom:1px solid var(--border-subtle); }
+        .medal-icon { font-size:18px; margin-right:4px; }
+        @media (max-width:960px) {
+            .main-container { grid-template-columns:1fr; padding:20px; }
+            .navbar { padding:0 16px; }
         }
     </style>
 </head>
 <body>
-
-    <div id="app">
-        <!-- ============================================================
-             顶部导航栏
-             ============================================================ -->
-        <header class="navbar">
-            <div class="navbar-left">
-                <div class="logo" onclick="showPage('home')" title="返回首页">
-                    <div class="logo-icon">K</div>
-                    <span>K-Hub</span>
-                </div>
-                <nav>
-                    <ul class="nav-links" id="nav-links">
-                        <li><a href="#" data-nav="home" class="active" onclick="showPage('home'); return false;">首页</a></li>
-                        <li><a href="#" data-nav="tasks" onclick="showPage('home', null, 'tasks'); return false;">任务大厅</a></li>
-                        <li><a href="#" data-nav="rewards" onclick="showPage('home', null, 'rewards'); return false;">极客兑换站</a></li>
-                    </ul>
-                </nav>
-            </div>
-            <div class="navbar-right">
-                <div class="points-display" id="points-display">
-                    <div class="points-icon">⚡</div>
-                    <div>
-                        <div class="points-value" id="points-value">2,450</div>
-                        <div class="points-label">可用积分</div>
-                    </div>
-                </div>
-                <div class="user-avatar-wrapper" title="用户：李">
-                    <div class="user-avatar">李</div>
-                </div>
-            </div>
-        </header>
-
-        <!-- ============================================================
-             主内容区域 (首页)
-             ============================================================ -->
-        <main class="main-container" id="home-page">
-            <!-- ====== 左侧：任务大厅 ====== -->
-            <div class="section-panel" id="tasks-panel">
-                <div class="section-header">
-                    <div>
-                        <div class="section-title">
-                            <span class="title-icon task">📋</span>
-                            任务大厅
-                        </div>
-                        <div class="section-subtitle">Task Board · 开源协作任务</div>
-                    </div>
-                </div>
-                <!-- 任务卡片由JS动态渲染 -->
-                <div id="tasks-container"></div>
-            </div>
-
-            <!-- ====== 右侧：极客兑换站 ====== -->
-            <div class="section-panel" id="rewards-panel">
-                <div class="section-header">
-                    <div>
-                        <div class="section-title">
-                            <span class="title-icon reward">🎁</span>
-                            极客兑换站
-                        </div>
-                        <div class="section-subtitle">Reward Store · 积分兑换权益</div>
-                    </div>
-                </div>
-                <!-- 兑换卡片由JS动态渲染 -->
-                <div id="rewards-container"></div>
-            </div>
-        </main>
-
-        <!-- ============================================================
-             任务详情页
-             ============================================================ -->
-        <div class="detail-page" id="task-detail">
-            <button class="back-btn" onclick="showPage('home')">← 返回任务大厅</button>
-            <h1 class="detail-title" id="task-detail-title"></h1>
-            <div class="detail-meta" id="task-detail-meta"></div>
-            <p class="detail-desc" id="task-detail-desc"></p>
-            <div class="detail-extra" id="task-detail-extra"></div>
-            <button class="btn-claim" id="task-detail-btn" onclick="claimTask()">确认领取此任务</button>
-            <div class="thank-you" id="thank-you-task">
-                <h2>🎉 领取成功！</h2>
-                <p>感谢你的参与！+<span id="thank-you-task-points"></span> 积分已到账，请留意后续的邮件通知。</p>
-            </div>
+<div id="app">
+    <header class="navbar">
+        <div class="navbar-left">
+            <div class="logo" onclick="showPage('home')"><div class="logo-icon">K</div><span>K-Hub</span></div>
+            <nav>
+                <ul class="nav-links" id="nav-links">
+                    <li><a href="#" data-nav="home" class="active" onclick="showPage('home');return false;">首页</a></li>
+                    <li><a href="#" data-nav="tasks" onclick="showPage('home','tasks');return false;">任务大厅</a></li>
+                    <li><a href="#" data-nav="rewards" onclick="showPage('home','rewards');return false;">兑换站</a></li>
+                    <li><a href="#" data-nav="leaderboard" onclick="openLeaderboard();return false;">排行榜</a></li>
+                    <li><a href="#" data-nav="medals" onclick="openMedalWall();return false;">勋章墙</a></li>
+                </ul>
+            </nav>
         </div>
-
-        <!-- ============================================================
-             兑换详情页
-             ============================================================ -->
-        <div class="detail-page" id="reward-detail">
-            <button class="back-btn" onclick="showPage('home')">← 返回兑换站</button>
-            <h1 class="detail-title" id="reward-detail-title"></h1>
-            <div class="detail-meta" id="reward-detail-meta"></div>
-            <p class="detail-desc" id="reward-detail-desc"></p>
-            <div class="detail-extra" id="reward-detail-extra"></div>
-            <button class="btn-redeem" id="reward-detail-btn" onclick="redeemReward()">立即兑换</button>
-            <div class="thank-you" id="thank-you-reward">
-                <h2>🎉 兑换申请已提交！</h2>
-                <p>感谢你的支持！我们的工作人员将在 3 个工作日内联系你。已消耗 <span id="thank-you-reward-cost"></span> 积分。</p>
+        <div class="navbar-right">
+            <a href="https://khub.gulu9832.xyz/" target="_blank" class="community-btn">🌐 进入社区协作平台</a>
+            <div class="points-btn" onclick="openPointsHistory()" title="查看积分记录">
+                <span>⚡</span>
+                <span><span class="points-value" id="points-value">2,450</span> 积分</span>
+                <span style="font-size:12px; color:var(--text-muted);">▾</span>
             </div>
+            <div class="avatar" title="李">李</div>
         </div>
+    </header>
 
-        <!-- Toast 提示 -->
-        <div id="toast" class="toast"></div>
+    <div id="hero-banner" style="text-align:center; padding: 20px 16px 8px;">
+        <h2 style="font-size:24px; background:linear-gradient(135deg,#a78bfa,#22d3ee); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">每一份贡献，都在点亮罕见病研究的星光</h2>
+        <p style="color:var(--text-secondary); margin-top:6px;">你的翻译、标注与代码，将直接加速罕见病诊疗进程</p>
     </div>
 
-    <script>
-        (function() {
-            // ============================================================
-            // 数据层 — 集中管理任务和奖励数据
-            // ============================================================
-            const tasksData = [{
-                id: 1,
-                title: '罕见病医学文献翻译',
-                desc: '将最新的国际罕见病研究文献从英文翻译为中文，帮助国内研究者获取前沿信息。',
-                detailDesc: '本任务需要志愿者具备良好的医学英语阅读能力。翻译内容涵盖罕见病的诊断、治疗及药物研发等前沿领域。每位志愿者将获得一份待翻译文献，预计耗时4-6小时。翻译成果将公开发布在 K-Hub 知识库中，供国内研究者免费查阅。',
-                extraInfo: '📌 预计耗时：4-6 小时 | 👥 已参与：23 人 | 📅 截止日期：长期有效',
-                points: 500,
-                difficulty: 'hard',
-                difficultyLabel: '困难',
-                icon: '🌐',
-                iconClass: 'translate',
-            }, {
-                id: 2,
-                title: '罕见病数据清洗与标注',
-                desc: '对社区收集的罕见病患者数据进行清洗、去重与标准化标注，为AI模型训练提供高质量数据集。',
-                detailDesc: '本任务需要对原始患者数据进行预处理，包括去除重复记录、统一字段格式、标注关键医学实体等。数据经过清洗后将用于训练罕见病辅助诊断模型。要求志愿者细心且有耐心。',
-                extraInfo: '📌 预计耗时：3-5 小时 | 👥 已参与：17 人 | 📅 截止日期：长期有效',
-                points: 300,
-                difficulty: 'medium',
-                difficultyLabel: '中等',
-                icon: '🗄️',
-                iconClass: 'data',
-            }, {
-                id: 3,
-                title: '社区知识库内容审核',
-                desc: '审核社区用户提交的罕见病科普内容，确保信息准确性和可读性。',
-                detailDesc: '审核工作包括事实核查、语言润色、来源验证等环节。通过审核的内容将发布在 K-Hub 官方知识库中，服务广大罕见病患者及家属。',
-                extraInfo: '📌 预计耗时：2-3 小时 | 👥 已参与：31 人 | 📅 截止日期：长期有效',
-                points: 200,
-                difficulty: 'easy',
-                difficultyLabel: '简单',
-                icon: '🔍',
-                iconClass: 'review',
-            }];
+    <main class="main-container" id="home-page">
+        <div class="section-panel" id="tasks-panel">
+            <div class="section-title"><span>📋</span> 任务大厅</div>
+            <div id="tasks-container"></div>
+            <div style="text-align:center; color:var(--text-muted); padding:20px;">— 到底啦，快去领取更多任务吧 —</div>
+        </div>
+        <div class="section-panel" id="rewards-panel">
+            <div class="section-title"><span>🎁</span> 极客兑换站</div>
+            <div id="rewards-container"></div>
+        </div>
+    </main>
 
-            const rewardsData = [{
-                id: 1,
-                title: 'ChatGPT Plus 会员 1个月',
-                desc: 'OpenAI 官方 Plus 订阅，优先使用 GPT-4 模型',
-                detailDesc: '兑换后可获得 ChatGPT Plus 一个月订阅权益。Plus 会员可优先使用 GPT-4 模型、获得更快的响应速度，并体验最新的AI功能。兑换成功后，我们会通过邮件发送激活码。',
-                extraInfo: '📌 兑换后 24 小时内发放 | 🔄 每人限兑 1 次 | 📧 激活码发送至注册邮箱',
-                cost: 2000,
-                icon: '🤖',
-                iconClass: 'gpt',
-            }, {
-                id: 2,
-                title: '开源贡献者认证证书',
-                desc: '由 K-Hub 官方颁发的电子认证证书，认可你的开源贡献',
-                detailDesc: '获得官方认证的电子证书，可在LinkedIn等平台展示。证书包含你的贡献记录、积分成就和志愿者等级。适合用于求职、升学申请等场景。',
-                extraInfo: '📌 兑换后即时生成 | 🔄 可多次兑换（每次更新证书） | 🏆 附带贡献徽章',
-                cost: 500,
-                icon: '📜',
-                iconClass: 'cert',
-            }, {
-                id: 3,
-                title: 'K-Hub 年度VIP会员',
-                desc: '享受一年期VIP权益：专属技术支持、优先参与内测、线下活动邀请',
-                detailDesc: 'VIP会员享有一整年的专属权益，包括：优先参与 K-Hub 新产品内测、专属技术支持通道、年度线下活动的优先邀请权、以及限量版周边礼品。',
-                extraInfo: '📌 兑换后即刻生效 | 🔄 有效期 365 天 | 🎁 含限量周边礼包',
-                cost: 5000,
-                icon: '👑',
-                iconClass: 'vip',
-            }];
+    <!-- 提交成果模态框 -->
+    <div class="modal-overlay" id="submit-modal">
+        <div class="modal">
+            <button class="close-modal" onclick="closeModal('submit-modal')">&times;</button>
+            <h3>📤 提交任务成果</h3>
+            <p id="submit-task-title" style="margin:12px 0;"></p>
+            <label>上传文件：</label>
+            <input type="file" style="margin:8px 0; display:block; color:var(--text-secondary);">
+            <textarea placeholder="备注说明..." style="width:100%; margin-top:8px; background:rgba(255,255,255,0.05); border:1px solid var(--border-subtle); border-radius:8px; padding:10px; color:#fff;" rows="3"></textarea>
+            <button class="btn" style="margin-top:12px;" onclick="submitTask()">确认提交</button>
+        </div>
+    </div>
 
-            // ============================================================
-            // 状态管理
-            // ============================================================
-            let userPoints = 2450;
-            const claimedTaskIds = new Set(); // 已领取的任务ID
-            const redeemedRewardIds = new Set(); // 已兑换的奖励ID
-            let currentTaskId = null; // 当前查看的任务详情ID
-            let currentRewardId = null; // 当前查看的奖励详情ID
-            let toastTimer = null;
+    <!-- 积分记录模态框 -->
+    <div class="modal-overlay" id="history-modal">
+        <div class="modal">
+            <button class="close-modal" onclick="closeModal('history-modal')">&times;</button>
+            <h3>📊 积分收支明细</h3>
+            <div id="history-list" style="max-height:50vh; overflow-y:auto; margin-top:12px;"></div>
+        </div>
+    </div>
 
-            // ============================================================
-            // DOM 缓存
-            // ============================================================
-            const $homePage = document.getElementById('home-page');
-            const $taskDetail = document.getElementById('task-detail');
-            const $rewardDetail = document.getElementById('reward-detail');
-            const $toast = document.getElementById('toast');
-            const $pointsValue = document.getElementById('points-value');
-            const $pointsDisplay = document.getElementById('points-display');
-            const $tasksContainer = document.getElementById('tasks-container');
-            const $rewardsContainer = document.getElementById('rewards-container');
-            const $navLinks = document.getElementById('nav-links');
-            const $thankYouTask = document.getElementById('thank-you-task');
-            const $thankYouReward = document.getElementById('thank-you-reward');
+    <!-- 排行榜模态框 -->
+    <div class="modal-overlay" id="leaderboard-modal">
+        <div class="modal" style="max-width:600px;">
+            <button class="close-modal" onclick="closeModal('leaderboard-modal')">&times;</button>
+            <h3>🏆 累计积分排行榜</h3>
+            <div style="display:flex; gap:8px; margin:12px 0;">
+                <button class="btn-outline" onclick="switchLeaderboard('day')">日榜</button>
+                <button class="btn-outline" onclick="switchLeaderboard('week')">周榜</button>
+                <button class="btn-outline" onclick="switchLeaderboard('month')">月榜</button>
+                <button class="btn-outline" onclick="switchLeaderboard('quarter')">季度</button>
+            </div>
+            <table class="leaderboard-table">
+                <thead><tr><th>排名</th><th>用户</th><th>累计积分</th><th>勋章</th></tr></thead>
+                <tbody id="leaderboard-body"></tbody>
+            </table>
+        </div>
+    </div>
 
-            // ============================================================
-            // 工具函数
-            // ============================================================
-            function formatNumber(num) {
-                return num.toLocaleString('en-US');
-            }
+    <!-- 勋章墙模态框 -->
+    <div class="modal-overlay" id="medal-modal">
+        <div class="modal" style="max-width:550px;">
+            <button class="close-modal" onclick="closeModal('medal-modal')">&times;</button>
+            <h3>🏅 我的勋章</h3>
+            <div id="medal-wall" style="display:flex; flex-wrap:wrap; gap:20px; margin:16px 0;"></div>
+            <div style="border-top:1px solid var(--border-subtle); padding-top:16px;">
+                <p style="font-size:14px;">✨ 季度卓越者勋章：集齐4个<strong>月度卓越者勋章</strong>可合成</p>
+                <p style="font-size:14px;">👑 年度卓越者勋章：集齐4个<strong>季度卓越者勋章</strong>可合成</p>
+                <p style="font-size:14px;">📜 荣誉证书：任意勋章可1:1兑换官方证书</p>
+                <button class="btn-outline" style="margin-top:8px;" onclick="synthesizeMedal()">🔨 合成勋章</button>
+                <button class="btn-outline" style="margin-left:8px;" onclick="exchangeCertificate()">📜 兑换荣誉证书</button>
+            </div>
+        </div>
+    </div>
 
-            function updatePointsDisplay(animate = true) {
-                $pointsValue.textContent = formatNumber(userPoints);
-                if (animate) {
-                    // 触发弹跳动画
-                    $pointsValue.classList.remove('animate-pop');
-                    void $pointsValue.offsetWidth; // 强制回流，重置动画
-                    $pointsValue.classList.add('animate-pop');
+    <div id="toast" style="position:fixed; top:88px; left:50%; transform:translateX(-50%); background:rgba(18,16,42,0.95); border:1px solid var(--border-subtle); border-radius:12px; padding:12px 24px; z-index:999; opacity:0; transition:0.3s; pointer-events:none;">提示</div>
+</div>
 
-                    // 导航栏积分高亮
-                    $pointsDisplay.classList.add('pulse-highlight');
-                    setTimeout(() => $pointsDisplay.classList.remove('pulse-highlight'), 800);
-                }
-            }
+<script>
+    (function() {
+        // ---------- 数据 ----------
+        const projects = [
+            { id:'p1', name:'罕见病知识翻译', icon:'🌐' },
+            { id:'p2', name:'医疗数据治理', icon:'🗄️' },
+            { id:'p3', name:'无障碍工具开发', icon:'♿' },
+            { id:'p4', name:'健康应用', icon:'❤️' }
+        ];
+        const tasksData = [
+            { id:1, projectId:'p1', title:'英文文献翻译', desc:'翻译罕见病最新研究', points:500, status:'available' },
+            { id:2, projectId:'p2', title:'数据清洗标注', desc:'清洗患者数据并标注', points:300, status:'available' },
+            { id:3, projectId:'p3', title:'开发无障碍阅读器插件', desc:'为视障患者提供阅读辅助', points:800, status:'available' },
+            { id:4, projectId:'p4', title:'健康患者数据可视化面板', desc:'搭建罕见病数据看板', points:600, status:'available' },
+            { id:5, projectId:'p4', title:'在线问诊预约系统', desc:'优化罕见病问诊流程', points:700, status:'available' },
+            { id:6, projectId:'p3', title:'药品提醒小程序', desc:'帮助患者按时服药', points:400, status:'available' },
+            { id:7, projectId:'p4', title:'康复训练视频平台', desc:'提供康复指导视频', points:550, status:'available' }
+        ];
+        const rewardsData = [
+            { id:1, category:'ai-membership', title:'妙哒AI月卡', desc:'GPT-4o 每月1000次', cost:800, icon:'🤖' },
+            { id:2, category:'ai-membership', title:'妙哒AI半年卡', desc:'半年无限次使用', cost:4000, icon:'🧠' },
+            { id:3, category:'ai-membership', title:'妙哒AI年卡', desc:'全年无限次，优先体验新功能', cost:7000, icon:'👑' }
+        ];
 
-            function showToast(message, type = '') {
-                if (toastTimer) clearTimeout(toastTimer);
-                // 清除所有类型类
-                $toast.className = 'toast';
-                if (type) {
-                    $toast.classList.add('toast-' + type);
-                }
-                $toast.textContent = message;
-                $toast.classList.add('show');
-                toastTimer = setTimeout(() => {
-                    $toast.classList.remove('show');
-                    toastTimer = null;
-                }, 2200);
-            }
+        // 用户数据
+        let userPoints = 2450;
+        const taskStatusMap = new Map(tasksData.map(t=>[t.id, t.status]));
+        let currentSubmitTaskId = null;
 
-            function getTaskById(id) {
-                return tasksData.find(t => t.id === id);
-            }
+        // 积分历史 (含多位用户)
+        const pointsHistory = [
+            { userId:'user_li', type:'income', amount:500, balance:500, desc:'完成翻译任务', time:Date.now()-86400000*2 },
+            { userId:'user_li', type:'income', amount:300, balance:800, desc:'数据清洗', time:Date.now()-86400000*5 },
+            { userId:'user_zhang', type:'income', amount:800, balance:800, desc:'无障碍插件开发', time:Date.now()-3600000*5 },
+            { userId:'user_zhang', type:'income', amount:600, balance:1400, desc:'数据面板', time:Date.now()-86400000*4 },
+            { userId:'user_wang', type:'income', amount:1200, balance:1200, desc:'文献翻译', time:Date.now()-86400000*1 },
+            { userId:'user_wang', type:'income', amount:400, balance:1600, desc:'药品提醒', time:Date.now()-86400000*3 },
+            { userId:'user_zhao', type:'income', amount:700, balance:700, desc:'问诊系统', time:Date.now()-86400000*6 },
+            { userId:'user_sun', type:'income', amount:900, balance:900, desc:'康复视频', time:Date.now()-86400000*2 },
+            { userId:'user_qian', type:'income', amount:1100, balance:1100, desc:'翻译任务', time:Date.now()-86400000*8 },
+        ];
+        // 勋章系统
+        const userMedals = {
+            monthly: ['2025-01', '2025-02', '2025-03'], // 已获得的月度卓越者勋章月份
+            quarterly: [], // 季度勋章（如 '2025-Q1'）
+            yearly: []
+        };
 
-            function getRewardById(id) {
-                return rewardsData.find(r => r.id === id);
-            }
+        // DOM
+        const $pointsValue = document.getElementById('points-value');
+        const $tasksContainer = document.getElementById('tasks-container');
+        const $rewardsContainer = document.getElementById('rewards-container');
+        const $toast = document.getElementById('toast');
 
-            function getDifficultyClass(difficulty) {
-                const map = {
-                    'hard': 'difficulty-hard',
-                    'medium': 'difficulty-medium',
-                    'easy': 'difficulty-easy'
-                };
-                return map[difficulty] || 'difficulty-medium';
-            }
+        function format(n){ return n.toLocaleString('en-US'); }
+        function showToast(msg, type=''){
+            $toast.textContent = msg; $toast.style.opacity = '1';
+            setTimeout(()=> $toast.style.opacity = '0', 2200);
+        }
+        function updatePointsDisplay(){ $pointsValue.textContent = format(userPoints); }
 
-            // ============================================================
-            // 渲染函数
-            // ============================================================
-            function renderTasks() {
-                if (tasksData.length === 0) {
-                    $tasksContainer.innerHTML = '<div class="empty-state">暂无可用任务，敬请期待新任务上线 🚀</div>';
-                    return;
-                }
-                $tasksContainer.innerHTML = tasksData.map(task => {
-                    const isClaimed = claimedTaskIds.has(task.id);
-                    const cardClass = isClaimed ? 'task-card claimed' : 'task-card';
-                    const btnClass = isClaimed ? 'btn-claim claimed-btn' : 'btn-claim';
-                    const btnText = isClaimed ? '✓ 已领取' : '领取任务';
-                    const btnDisabled = isClaimed ? 'disabled' : '';
-                    const onclickCard = isClaimed ? '' : `onclick="showPage('task-detail', ${task.id})"`;
-                    const onclickBtn = isClaimed ?
-                        '' :
-                        `onclick="event.stopPropagation(); claimTask(${task.id})"`;
-                    return `
-                        <div class="${cardClass}" ${onclickCard}>
-                            <div class="task-card-header">
-                                <div class="task-card-icon ${task.iconClass}">${task.icon}</div>
-                                <span class="difficulty-tag ${getDifficultyClass(task.difficulty)}">${task.difficultyLabel}</span>
-                            </div>
-                            <div class="task-card-title">${task.title}</div>
-                            <div class="task-card-desc">${task.desc}</div>
-                            <div class="task-card-footer">
-                                <div class="points-badge"><span>🪙</span> ${formatNumber(task.points)} 积分</div>
-                                <button class="${btnClass}" ${btnDisabled} ${onclickBtn}>${btnText}</button>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-            }
+        // 渲染任务
+        function renderTasks(){
+            const html = tasksData.map(t=>{
+                const proj = projects.find(p=>p.id===t.projectId);
+                const status = taskStatusMap.get(t.id) || 'available';
+                const statusText = {available:'可领取', claimed:'进行中', submitted:'审核中', completed:'已完成'}[status];
+                const statusClass = `status-${status}`;
+                let btnText, btnDisabled, action;
+                if(status==='available'){ btnText='领取任务'; action=`handleTaskAction(${t.id})`; }
+                else if(status==='claimed'){ btnText='提交成果'; action=`openSubmitModal(${t.id})`; }
+                else if(status==='submitted'){ btnText='审核中…'; btnDisabled='disabled'; }
+                else { btnText='✓ 已完成'; btnDisabled='disabled'; }
+                return `<div class="task-card">
+                    <div style="display:flex; justify-content:space-between;">
+                        <span style="color:var(--cyan-400);">${proj?.icon||''} ${proj?.name||''}</span>
+                        <span class="status-badge ${statusClass}">${statusText}</span>
+                    </div>
+                    <h4 style="margin:8px 0;">${t.title}</h4>
+                    <p style="font-size:13px; color:var(--text-secondary);">${t.desc}</p>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px;">
+                        <span style="font-weight:700; color:var(--purple-400);">🪙 ${format(t.points)}</span>
+                        <button class="btn" ${btnDisabled||''} onclick="event.stopPropagation(); ${action||''}">${btnText}</button>
+                    </div>
+                </div>`;
+            }).join('');
+            $tasksContainer.innerHTML = html;
+        }
 
-            function renderRewards() {
-                if (rewardsData.length === 0) {
-                    $rewardsContainer.innerHTML =
-                        '<div class="empty-state">暂无兑换项目，敬请期待新权益上线 🎁</div>';
-                    return;
-                }
-                $rewardsContainer.innerHTML = rewardsData.map(reward => {
-                    const isRedeemed = redeemedRewardIds.has(reward.id);
-                    const insufficientFunds = !isRedeemed && userPoints < reward.cost;
-                    const cardClass = isRedeemed ? 'reward-card redeemed' : 'reward-card';
-                    let btnClass = 'btn-redeem';
-                    let btnText = '立即兑换';
-                    let btnDisabled = '';
-                    if (isRedeemed) {
-                        btnClass += ' redeemed-btn';
-                        btnText = '✓ 已兑换';
-                        btnDisabled = 'disabled';
-                    } else if (insufficientFunds) {
-                        btnClass += ' insufficient';
-                        btnText = '积分不足';
-                        btnDisabled = 'disabled';
-                    }
-                    const onclickCard = isRedeemed ? '' :
-                        `onclick="showPage('reward-detail', ${reward.id})"`;
-                    const onclickBtn = (isRedeemed || insufficientFunds) ?
-                        '' :
-                        `onclick="event.stopPropagation(); redeemReward(${reward.id})"`;
-                    return `
-                        <div class="${cardClass}" ${onclickCard}>
-                            <div class="reward-icon ${reward.iconClass}">${reward.icon}</div>
-                            <div class="reward-info">
-                                <div class="reward-title">${reward.title}</div>
-                                <div class="reward-desc">${reward.desc}</div>
-                            </div>
-                            <button class="${btnClass}" ${btnDisabled} ${onclickBtn}>${btnText}</button>
-                        </div>
-                    `;
-                }).join('');
-            }
-
-            function renderAll() {
-                renderTasks();
-                renderRewards();
-            }
-
-            // ============================================================
-            // 页面导航
-            // ============================================================
-            function showPage(pageId, itemId, scrollTarget) {
-                // 隐藏所有页面
-                $homePage.style.display = 'none';
-                $taskDetail.classList.remove('active');
-                $rewardDetail.classList.remove('active');
-                $thankYouTask.classList.remove('active');
-                $thankYouReward.classList.remove('active');
-
-                // 重置当前查看的ID
-                if (pageId === 'home') {
-                    currentTaskId = null;
-                    currentRewardId = null;
-                }
-
-                // 显示目标页面
-                if (pageId === 'home') {
-                    $homePage.style.display = 'grid';
-                    // 重新触发入场动画
-                    $homePage.style.animation = 'none';
-                    void $homePage.offsetWidth;
-                    $homePage.style.animation = 'fadeSlideIn 0.4s ease';
-                    // 滚动到指定区域
-                    if (scrollTarget === 'tasks' || scrollTarget === 'rewards') {
-                        const targetEl = scrollTarget === 'tasks' ?
-                            document.getElementById('tasks-panel') :
-                            document.getElementById('rewards-panel');
-                        if (targetEl) {
-                            setTimeout(() => {
-                                targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                            }, 150);
-                        }
-                    }
-                } else if (pageId === 'task-detail') {
-                    const taskId = itemId || currentTaskId || (tasksData.length > 0 ? tasksData[0]
-                        .id : null);
-                    if (!taskId) {
-                        showToast('任务数据加载失败', 'error');
-                        showPage('home');
-                        return;
-                    }
-                    currentTaskId = taskId;
-                    populateTaskDetail(taskId);
-                    $taskDetail.classList.add('active');
-                    // 重新触发入场动画
-                    $taskDetail.style.animation = 'none';
-                    void $taskDetail.offsetWidth;
-                    $taskDetail.style.animation = 'fadeSlideIn 0.4s ease';
-                } else if (pageId === 'reward-detail') {
-                    const rewardId = itemId || currentRewardId || (rewardsData.length > 0 ? rewardsData[0]
-                        .id : null);
-                    if (!rewardId) {
-                        showToast('奖励数据加载失败', 'error');
-                        showPage('home');
-                        return;
-                    }
-                    currentRewardId = rewardId;
-                    populateRewardDetail(rewardId);
-                    $rewardDetail.classList.add('active');
-                    // 重新触发入场动画
-                    $rewardDetail.style.animation = 'none';
-                    void $rewardDetail.offsetWidth;
-                    $rewardDetail.style.animation = 'fadeSlideIn 0.4s ease';
-                }
-
-                // 更新导航高亮
-                updateNavHighlight(pageId, scrollTarget);
-
-                // 滚动到顶部
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-
-                // 重新渲染列表（反映最新状态）
+        // 任务操作
+        window.handleTaskAction = function(taskId){
+            const status = taskStatusMap.get(taskId);
+            if(status==='available'){
+                taskStatusMap.set(taskId, 'claimed');
+                showToast('任务已领取，请完成后提交成果');
                 renderAll();
             }
-
-            function updateNavHighlight(pageId, scrollTarget) {
-                const links = $navLinks.querySelectorAll('a');
-                links.forEach(link => link.classList.remove('active'));
-                if (pageId === 'home' && scrollTarget === 'tasks') {
-                    const tasksLink = $navLinks.querySelector('[data-nav="tasks"]');
-                    if (tasksLink) tasksLink.classList.add('active');
-                } else if (pageId === 'home' && scrollTarget === 'rewards') {
-                    const rewardsLink = $navLinks.querySelector('[data-nav="rewards"]');
-                    if (rewardsLink) rewardsLink.classList.add('active');
-                } else {
-                    const homeLink = $navLinks.querySelector('[data-nav="home"]');
-                    if (homeLink) homeLink.classList.add('active');
-                }
-            }
-
-            function populateTaskDetail(taskId) {
-                const task = getTaskById(taskId);
-                if (!task) return;
-                const isClaimed = claimedTaskIds.has(taskId);
-
-                document.getElementById('task-detail-title').textContent = '📄 ' + task.title;
-                document.getElementById('task-detail-meta').innerHTML = `
-                    <span class="difficulty-tag ${getDifficultyClass(task.difficulty)}">${task.difficultyLabel}</span>
-                    <span class="detail-points-tag">🪙 ${formatNumber(task.points)} 积分</span>
-                `;
-                document.getElementById('task-detail-desc').textContent = task.detailDesc;
-                document.getElementById('task-detail-extra').textContent = task.extraInfo;
-                document.getElementById('thank-you-task-points').textContent = formatNumber(task.points);
-
-                const btn = document.getElementById('task-detail-btn');
-                if (isClaimed) {
-                    btn.textContent = '✓ 已领取';
-                    btn.classList.add('claimed-btn');
-                    btn.disabled = true;
-                } else {
-                    btn.textContent = '确认领取此任务（+' + formatNumber(task.points) + ' 积分）';
-                    btn.classList.remove('claimed-btn');
-                    btn.disabled = false;
-                }
-                $thankYouTask.classList.remove('active');
-            }
-
-            function populateRewardDetail(rewardId) {
-                const reward = getRewardById(rewardId);
-                if (!reward) return;
-                const isRedeemed = redeemedRewardIds.has(rewardId);
-                const insufficientFunds = !isRedeemed && userPoints < reward.cost;
-
-                document.getElementById('reward-detail-title').textContent = '🎁 ' + reward.title;
-                document.getElementById('reward-detail-meta').innerHTML = `
-                    <span class="detail-cost-tag">💎 ${formatNumber(reward.cost)} 积分</span>
-                `;
-                document.getElementById('reward-detail-desc').textContent = reward.detailDesc;
-                document.getElementById('reward-detail-extra').textContent = reward.extraInfo;
-                document.getElementById('thank-you-reward-cost').textContent = formatNumber(reward.cost);
-
-                const btn = document.getElementById('reward-detail-btn');
-                btn.classList.remove('redeemed-btn', 'insufficient');
-                if (isRedeemed) {
-                    btn.textContent = '✓ 已兑换';
-                    btn.classList.add('redeemed-btn');
-                    btn.disabled = true;
-                } else if (insufficientFunds) {
-                    btn.textContent = '积分不足（需 ' + formatNumber(reward.cost) + ' 积分）';
-                    btn.classList.add('insufficient');
-                    btn.disabled = true;
-                } else {
-                    btn.textContent = '立即兑换（消耗 ' + formatNumber(reward.cost) + ' 积分）';
-                    btn.disabled = false;
-                }
-                $thankYouReward.classList.remove('active');
-            }
-
-            // ============================================================
-            // 业务操作
-            // ============================================================
-            function claimTask(taskId) {
-                // 如果未传taskId，使用当前详情页的taskId
-                const effectiveTaskId = taskId || currentTaskId;
-                if (!effectiveTaskId) {
-                    showToast('请先选择一个任务', 'warning');
-                    return;
-                }
-                const task = getTaskById(effectiveTaskId);
-                if (!task) {
-                    showToast('任务数据异常', 'error');
-                    return;
-                }
-                if (claimedTaskIds.has(effectiveTaskId)) {
-                    showToast('该任务已被领取，请选择其他任务', 'warning');
-                    return;
-                }
-
-                // 模拟提交
-                showToast('正在提交申请...', '');
-                setTimeout(() => {
-                    // 标记已领取
-                    claimedTaskIds.add(effectiveTaskId);
-                    // 增加积分
+        };
+        window.openSubmitModal = function(taskId){
+            currentSubmitTaskId = taskId;
+            const task = tasksData.find(t=>t.id===taskId);
+            document.getElementById('submit-task-title').textContent = task?.title||'';
+            document.getElementById('submit-modal').classList.add('active');
+        };
+        window.submitTask = function(){
+            if(!currentSubmitTaskId) return;
+            taskStatusMap.set(currentSubmitTaskId, 'submitted');
+            document.getElementById('submit-modal').classList.remove('active');
+            showToast('成果已提交，审核中，请耐心等待…');
+            renderAll();
+            // 模拟审核通过 (5秒后)
+            setTimeout(()=>{
+                const task = tasksData.find(t=>t.id===currentSubmitTaskId);
+                if(task && taskStatusMap.get(currentSubmitTaskId)==='submitted'){
+                    taskStatusMap.set(currentSubmitTaskId, 'completed');
                     userPoints += task.points;
-                    updatePointsDisplay(true);
-                    // 显示感谢信息
-                    if (effectiveTaskId === currentTaskId && $taskDetail.classList.contains('active')) {
-                        $thankYouTask.classList.add('active');
-                        // 更新详情页按钮状态
-                        const btn = document.getElementById('task-detail-btn');
-                        btn.textContent = '✓ 已领取';
-                        btn.classList.add('claimed-btn');
-                        btn.disabled = true;
-                    }
-                    // 重新渲染列表
+                    pointsHistory.push({userId:'user_li', type:'income', amount:task.points, balance:userPoints, desc:`完成任务: ${task.title}`, time:Date.now()});
+                    updatePointsDisplay();
                     renderAll();
-                    showToast('✅ 领取成功！+' + formatNumber(task.points) + ' 积分已到账', 'success');
-                }, 600);
+                    showToast(`🎉 审核通过！+${format(task.points)} 积分`);
+                    // 每月检查是否可获得月度勋章
+                    checkMonthlyMedal();
+                }
+            }, 5000);
+        };
+
+        // 兑换
+        window.redeemReward = function(rewardId){
+            const reward = rewardsData.find(r=>r.id===rewardId);
+            if(!reward || userPoints < reward.cost){ showToast('积分不足'); return; }
+            userPoints -= reward.cost;
+            pointsHistory.push({userId:'user_li', type:'expense', amount:-reward.cost, balance:userPoints, desc:`兑换: ${reward.title}`, time:Date.now()});
+            updatePointsDisplay();
+            renderAll();
+            showToast(`✅ 兑换成功！消耗 ${format(reward.cost)} 积分`);
+        };
+
+        // 渲染兑换站
+        function renderRewards(){
+            const catTitle = '🤖 AI 会员';
+            const items = rewardsData.filter(r=>r.category==='ai-membership');
+            let html = `<h4 style="color:var(--text-secondary); margin-bottom:8px;">${catTitle}</h4>`;
+            items.forEach(r=>{
+                const can = userPoints >= r.cost;
+                html += `<div class="reward-card" style="margin-bottom:12px; display:flex; align-items:center; gap:12px;">
+                    <div style="font-size:28px;">${r.icon}</div>
+                    <div style="flex:1;"><strong>${r.title}</strong><div style="font-size:12px;color:var(--text-muted);">${r.desc}</div></div>
+                    <div style="text-align:right;"><span style="font-weight:700;color:var(--cyan-400);">${format(r.cost)}</span><br>
+                    <button class="btn-outline" style="margin-top:4px;" ${!can?'disabled':''} onclick="event.stopPropagation(); redeemReward(${r.id})">${can?'兑换':'积分不足'}</button></div>
+                </div>`;
+            });
+            $rewardsContainer.innerHTML = html;
+        }
+
+        // 积分记录
+        window.openPointsHistory = function(){
+            const userHistory = pointsHistory.filter(h=>h.userId==='user_li').reverse();
+            const list = document.getElementById('history-list');
+            list.innerHTML = userHistory.length===0 ? '<p>暂无记录</p>' :
+                userHistory.map(h=>`<div style="border-bottom:1px solid var(--border-subtle); padding:8px 0;">
+                    <span style="color:${h.type==='income'?'var(--success)':'var(--danger)'}">${h.type==='income'?'+':'-'}${format(Math.abs(h.amount))}</span>
+                    <span style="margin-left:12px;">${h.desc}</span>
+                    <span style="float:right; font-size:12px; color:var(--text-muted);">${new Date(h.time).toLocaleString()}</span>
+                </div>`).join('');
+            document.getElementById('history-modal').classList.add('active');
+        };
+
+        // 排行榜
+        function computeLeaderboard(period){
+            const now = Date.now();
+            const ranges = {day:86400000, week:604800000, month:2592000000, quarter:7776000000};
+            const since = now - (ranges[period]||ranges.month);
+            const userMap = {
+                'user_li': { name:'李', avatar:'李' },
+                'user_zhang': { name:'张三', avatar:'张' },
+                'user_wang': { name:'王五', avatar:'王' },
+                'user_zhao': { name:'赵六', avatar:'赵' },
+                'user_sun': { name:'孙七', avatar:'孙' },
+                'user_qian': { name:'钱八', avatar:'钱' }
+            };
+            const sums = {};
+            pointsHistory.forEach(h=>{
+                if(h.time >= since && h.type==='income'){
+                    sums[h.userId] = (sums[h.userId]||0) + h.amount;
+                }
+            });
+            return Object.entries(sums).map(([uid, total])=>({...userMap[uid], total})).sort((a,b)=>b.total-a.total);
+        }
+        window.switchLeaderboard = function(period){
+            const data = computeLeaderboard(period);
+            const tbody = document.getElementById('leaderboard-body');
+            tbody.innerHTML = data.map((u,i)=>{
+                let medal = '';
+                if(i<3) medal = i===0?'🥇': i===1?'🥈':'🥉';
+                return `<tr>
+                    <td><span style="font-weight:700;">${i+1}</span> ${medal}</td>
+                    <td>${u.avatar} ${u.name}</td>
+                    <td>${format(u.total)}</td>
+                    <td>${i<3?'🏅 卓越者':''}</td>
+                </tr>`;
+            }).join('');
+        };
+        window.openLeaderboard = function(){
+            document.getElementById('leaderboard-modal').classList.add('active');
+            window.switchLeaderboard('month');
+        };
+
+        // 勋章系统
+        function checkMonthlyMedal(){
+            const now = new Date();
+            const monthKey = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+            if(!userMedals.monthly.includes(monthKey)){
+                userMedals.monthly.push(monthKey);
+                showToast('🏅 恭喜获得本月卓越者勋章！');
             }
-
-            function redeemReward(rewardId) {
-                const effectiveRewardId = rewardId || currentRewardId;
-                if (!effectiveRewardId) {
-                    showToast('请先选择一个奖励', 'warning');
-                    return;
-                }
-                const reward = getRewardById(effectiveRewardId);
-                if (!reward) {
-                    showToast('奖励数据异常', 'error');
-                    return;
-                }
-                if (redeemedRewardIds.has(effectiveRewardId)) {
-                    showToast('该奖励已兑换，请选择其他奖励', 'warning');
-                    return;
-                }
-                if (userPoints < reward.cost) {
-                    showToast('积分不足！当前剩余 ' + formatNumber(userPoints) + ' 积分', 'error');
-                    return;
-                }
-
-                // 模拟兑换
-                showToast('正在处理兑换...', '');
-                setTimeout(() => {
-                    // 标记已兑换
-                    redeemedRewardIds.add(effectiveRewardId);
-                    // 扣除积分
-                    userPoints -= reward.cost;
-                    updatePointsDisplay(true);
-                    // 显示感谢信息
-                    if (effectiveRewardId === currentRewardId && $rewardDetail.classList.contains('active')) {
-                        $thankYouReward.classList.add('active');
-                        const btn = document.getElementById('reward-detail-btn');
-                        btn.textContent = '✓ 已兑换';
-                        btn.classList.add('redeemed-btn');
-                        btn.disabled = true;
-                    }
-                    // 重新渲染列表
-                    renderAll();
-                    showToast('✅ 兑换成功！已消耗 ' + formatNumber(reward.cost) + ' 积分', 'success');
-                }, 600);
+        }
+        function renderMedalWall(){
+            const wall = document.getElementById('medal-wall');
+            let html = '';
+            userMedals.monthly.forEach(m=> html += `<div style="text-align:center;"><span style="font-size:32px;">🌟</span><br>月度勋章<br><small>${m}</small></div>`);
+            userMedals.quarterly.forEach(q=> html += `<div style="text-align:center;"><span style="font-size:32px;">🏅</span><br>季度勋章<br><small>${q}</small></div>`);
+            userMedals.yearly.forEach(y=> html += `<div style="text-align:center;"><span style="font-size:32px;">👑</span><br>年度勋章<br><small>${y}</small></div>`);
+            wall.innerHTML = html || '<p style="color:var(--text-muted);">暂无勋章，快去完成任务吧</p>';
+        }
+        window.openMedalWall = function(){
+            renderMedalWall();
+            document.getElementById('medal-modal').classList.add('active');
+        };
+        window.synthesizeMedal = function(){
+            if(userMedals.monthly.length >= 4){
+                userMedals.monthly.splice(0,4);
+                const q = '2025-Q'+(userMedals.quarterly.length+1);
+                userMedals.quarterly.push(q);
+                showToast('🎉 合成季度卓越者勋章！');
+            } else if(userMedals.quarterly.length >= 4){
+                userMedals.quarterly.splice(0,4);
+                const y = '2025';
+                userMedals.yearly.push(y);
+                showToast('👑 合成年度卓越者勋章！');
+            } else {
+                showToast('勋章不足，无法合成');
             }
+            renderMedalWall();
+        };
+        window.exchangeCertificate = function(){
+            const totalMedals = userMedals.monthly.length + userMedals.quarterly.length + userMedals.yearly.length;
+            if(totalMedals === 0){ showToast('没有可兑换的勋章'); return; }
+            // 消耗一个勋章（优先月度）
+            if(userMedals.monthly.length>0) userMedals.monthly.pop();
+            else if(userMedals.quarterly.length>0) userMedals.quarterly.pop();
+            else userMedals.yearly.pop();
+            showToast('📜 已兑换荣誉证书，勋章已消耗');
+            renderMedalWall();
+        };
 
-            // ============================================================
-            // 初始化
-            // ============================================================
-            function init() {
-                updatePointsDisplay(false);
-                renderAll();
-                // 确保首页可见
-                $homePage.style.display = 'grid';
-                $taskDetail.classList.remove('active');
-                $rewardDetail.classList.remove('active');
-                updateNavHighlight('home', null);
+        // 关闭模态框
+        window.closeModal = function(id){
+            document.getElementById(id).classList.remove('active');
+        };
+
+        function renderAll(){ renderTasks(); renderRewards(); }
+        window.showPage = function(page, section){
+            if(page==='home'){
+                document.getElementById('home-page').style.display = 'grid';
+                if(section==='tasks') document.getElementById('tasks-panel').scrollIntoView({behavior:'smooth'});
+                if(section==='rewards') document.getElementById('rewards-panel').scrollIntoView({behavior:'smooth'});
             }
+            renderAll();
+        };
 
-            // 暴露到全局作用域（供onclick属性调用）
-            window.showPage = showPage;
-            window.claimTask = claimTask;
-            window.redeemReward = redeemReward;
-
-            // 启动应用
-            init();
-
-            console.log('%c🚀 K-Hub %c初始化完成 %c| %c积分: ' + formatNumber(userPoints) +
-                ' %c| %c任务: ' + tasksData.length + ' 个 %c| %c奖励: ' + rewardsData.length + ' 个',
-                'color:#a78bfa;font-weight:bold;', 'color:#e8ecf2;', '',
-                'color:#22d3ee;font-weight:bold;', '', 'color:#a78bfa;', '', 'color:#22d3ee;', '');
-            console.log('%c💡 提示：点击任务/奖励卡片查看详情，或直接点击按钮快速操作。',
-                'color:#a0aec0;font-style:italic;');
-        })();
-    </script>
+        // 初始化
+        updatePointsDisplay();
+        renderAll();
+        // 模拟用户已有一些月度勋章（为了演示合成）
+        if(userMedals.monthly.length===0) userMedals.monthly = ['2025-01','2025-02','2025-03'];
+    })();
+</script>
 </body>
 </html>
